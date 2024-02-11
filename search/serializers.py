@@ -1,5 +1,12 @@
+from django.contrib.auth.models import User
 from rest_framework import serializers
 from .models import Seller, Offer, Transaction
+
+
+class UserSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = User
+        fields = ('id', 'username', 'email')
 
 
 class SellerSerializer(serializers.ModelSerializer):
