@@ -16,6 +16,7 @@ class Seller(models.Model):
 
 
 class Offer(models.Model):
+    # todo: add seller_id
     isbn = models.CharField(max_length=13, verbose_name="ISBN")
     wish_price = models.DecimalField(max_digits=5, decimal_places=2, verbose_name="Wunschpreis")
     member_id = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.PROTECT, verbose_name="FV-Mitglied")
@@ -33,7 +34,7 @@ class Transaction(models.Model):
     value = models.DecimalField(max_digits=4, decimal_places=2, verbose_name="Betrag")
     seller_id = models.ForeignKey("Seller", on_delete=models.PROTECT, verbose_name="Verkäufer:in")
     member_id = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.PROTECT, verbose_name="FV-Mitglied")
-    offer_id = models.ForeignKey('Offer', on_delete=models.PROTECT)
+    offer_id = models.ForeignKey('Offer', on_delete=models.PROTECT) # todo: nullable
     created_at = models.DateTimeField(auto_now_add=True, verbose_name="Erstellt am")
 
     def save(self, *args, **kwargs):

@@ -35,6 +35,7 @@ class OfferViewSet(viewsets.ModelViewSet):
         for the currently authenticated user.
         """
         return Offer.objects.filter(is_active=True)
+        # todo: query parameters
 
     def perform_destroy(self, instance):
         # Implement soft delete by overriding the perform_destroy method

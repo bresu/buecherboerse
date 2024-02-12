@@ -11,6 +11,8 @@ from rest_framework_simplejwt.views import (
 router = DefaultRouter()
 # offer endpoints
 router.register(r'offers', OfferViewSet, basename="offer")
+# todo: add seller adding via api
+# todo: add transaction adding via api
 
 
 # router.register(r'sellers', SellerViewSet)
@@ -19,7 +21,7 @@ router.register(r'offers', OfferViewSet, basename="offer")
 urlpatterns = [
     path('', include(router.urls)),
     path('api/auth/login', TokenObtainPairView.as_view(), name='token_obtain_pair'),
-    path('api/auth/refresh/', TokenRefreshView.as_view(), name='token_refresh'),
+    path('api/auth/refresh', TokenRefreshView.as_view(), name='token_refresh'),
     path('api/auth/logout', LogoutAPIView.as_view(), name='auth_logout'),
     path('api/auth/user', CurrentUserAPIView.as_view(), name='auth_user'),
 
