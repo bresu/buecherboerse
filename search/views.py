@@ -14,6 +14,7 @@ class LogoutAPIView(APIView):
     """View for logging out user, throws 401 if not logged in"""
     permission_classes = [IsAuthenticated]
 
+
     def post(self, request):
         # Perform any logout actions here (e.g., logging)
         # Since JWT is stateless, actual logout is handled by the frontend discarding the token
@@ -53,11 +54,14 @@ class SellerViewSet(viewsets.ModelViewSet):
 
     # todo: query Parameter
 
-
 # todo: query paramets
+
+
 class OfferListAPIView(ListAPIView):
     queryset = Offer.objects.all()
     serializer_class = OfferSerializer
     permission_classes = [IsAuthenticated]
-    filter_backends = DjangoFilterBackend
+    filter_backends = (DjangoFilterBackend,)
     filterset_class = OfferFilter
+    #filterset_fields = ('price', 'memberId')
+

@@ -10,13 +10,15 @@ class UserSerializer(serializers.ModelSerializer):
 
 
 class SellerSerializer(serializers.ModelSerializer):
+
     class Meta:
         model = Seller
         fields = '__all__'
 
 
 class OfferSerializer(serializers.ModelSerializer):
-    # todo: foreign key works?
+    seller = SellerSerializer(read_only=True)
+
     class Meta:
         model = Offer
         fields = '__all__'  # Adjust fields as necessary'
