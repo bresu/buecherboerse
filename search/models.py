@@ -16,9 +16,9 @@ class Seller(models.Model):
 
 
 class Offer(models.Model):
-    # todo: add seller_id
     isbn = models.CharField(max_length=13, verbose_name="ISBN")
     wish_price = models.DecimalField(max_digits=5, decimal_places=2, verbose_name="Wunschpreis")
+    # seller_id = models.ForeignKey() # todo: add seller_id
     member_id = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.PROTECT, verbose_name="FV-Mitglied")
     is_active = models.BooleanField(default=True, verbose_name="Aktiv")
     created_at = models.DateTimeField(auto_now_add=True, verbose_name="Erstellt am")

@@ -2,12 +2,16 @@ from rest_framework import viewsets, status, generics
 from rest_framework.permissions import IsAuthenticated
 from rest_framework.response import Response
 from rest_framework.views import APIView
-from .models import Offer
-from .serializers import OfferSerializer
+from rest_framework.generics import ListAPIView
+from .models import Offer, Seller, Transaction
+from .serializers import OfferSerializer, SellerSerializer
 from search.serializers import UserSerializer
+from django_filters.rest_framework import DjangoFilterBackend
+from .filters import OfferFilter
 
 
 class LogoutAPIView(APIView):
+    """View for logging out user, throws 401 if not logged in"""
     permission_classes = [IsAuthenticated]
 
     def post(self, request):
@@ -17,6 +21,7 @@ class LogoutAPIView(APIView):
 
 
 class CurrentUserAPIView(generics.RetrieveAPIView):
+    """Get current user data (id, name, email)"""
     permission_classes = [IsAuthenticated]
     serializer_class = UserSerializer
 
@@ -24,20 +29,35 @@ class CurrentUserAPIView(generics.RetrieveAPIView):
         return self.request.user
 
 
-class OfferViewSet(viewsets.ModelViewSet):
+# class OfferViewSet(viewsets.ModelViewSet):
+#     queryset = Offer.objects.all()
+#     serializer_class = OfferSerializer
+#     permission_classes = [IsAuthenticated]
+#     filter_backends = [DjangoFilterBackend]
+#
+#     filterset_class = OfferFilter
+#     def get_queryset(self):
+#         queryset = super().get_queryset()
+#         print(queryset.query)  # This will print the actual SQL query being executed
+#         return queryset
+#     def perform_destroy(self, instance):
+#         # Implement soft delete by overriding the perform_destroy method
+#         instance.is_active = False
+#         instance.save()
+
+
+class SellerViewSet(viewsets.ModelViewSet):
+    queryset = Seller.objects.all()
+    serializer_class = SellerSerializer
+    permission_classes = [IsAuthenticated]
+
+    # todo: query Parameter
+
+
+# todo: query paramets
+class OfferListAPIView(ListAPIView):
     queryset = Offer.objects.all()
     serializer_class = OfferSerializer
     permission_classes = [IsAuthenticated]
-
-    def get_queryset(self):
-        """
-        This view should return a list of all the active offers
-        for the currently authenticated user.
-        """
-        return Offer.objects.filter(is_active=True)
-        # todo: query parameters
-
-    def perform_destroy(self, instance):
-        # Implement soft delete by overriding the perform_destroy method
-        instance.is_active = False
-        instance.save()
+    filter_backends = DjangoFilterBackend
+    filterset_class = OfferFilter

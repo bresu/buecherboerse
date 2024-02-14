@@ -16,6 +16,7 @@ class SellerSerializer(serializers.ModelSerializer):
 
 
 class OfferSerializer(serializers.ModelSerializer):
+    # todo: foreign key works?
     class Meta:
         model = Offer
         fields = '__all__'  # Adjust fields as necessary'
