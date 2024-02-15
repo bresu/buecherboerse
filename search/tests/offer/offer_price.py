@@ -11,7 +11,7 @@ from urllib.parse import urlencode, urljoin
 class OfferPriceGTFilterTests(APITestCase):
     @classmethod
     def setUpTestData(cls):
-        # Create a user for authentication
+        # Create a user1 for authentication
         cls.user = User.objects.create_user(username='testuser', password='testpassword')
         # Create a seller instance for associating with offers
         cls.seller = Seller.objects.create(fullName="John Doe", email="john@example.com",

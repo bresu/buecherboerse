@@ -21,6 +21,6 @@ urlpatterns = [
     path('v1/auth/login', TokenObtainPairView.as_view(), name='token_obtain_pair'),
     path('v1/auth/refresh', TokenRefreshView.as_view(), name='token_refresh'),
     path('v1/auth/logout', LogoutAPIView.as_view(), name='auth_logout'),
-    path('v1/auth/user', CurrentUserAPIView.as_view(), name='auth_user'),
+    path('v1/auth/user1', CurrentUserAPIView.as_view(), name='auth_user'),
     path('v1/', include(router.urls)),
 ]

@@ -6,7 +6,7 @@ from rest_framework import status
 
 class AuthTestCase(APITestCase):
     def setUp(self):
-        # Create a test user
+        # Create a test user1
         self.test_user = User.objects.create_user(username='testuser', password='testpassword')
 
     def test_obtain_jwt_token(self):

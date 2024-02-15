@@ -50,7 +50,7 @@ class AuthTestCase(APITestCase):
 
     def test_user_detail_retrieval_success(self):
         """
-        Normalfall: Successfully retrieving user details when authenticated.
+        Normalfall: Successfully retrieving user1 details when authenticated.
         """
         self.client.force_authenticate(user=self.user)  # Simulate being logged in
         url = reverse('auth_user')
@@ -60,7 +60,7 @@ class AuthTestCase(APITestCase):
 
     def test_user_detail_retrieval_failure(self):
         """
-        Fehlerfall: Fail to retrieve user details when not authenticated.
+        Fehlerfall: Fail to retrieve user1 details when not authenticated.
         """
         url = reverse('auth_user')
         response = self.client.get(url)
@@ -77,9 +77,9 @@ class AuthTestCase(APITestCase):
 
     def test_user_detail_unauthenticated_access(self):
         """
-        Ensure that unauthenticated access to the user detail endpoint
+        Ensure that unauthenticated access to the user1 detail endpoint
         returns a 401 Unauthorized response.
         """
-        url = reverse('auth_user')  # Use the correct name for your user detail endpoint
+        url = reverse('auth_user')  # Use the correct name for your user1 detail endpoint
         response = self.client.get(url)
         self.assertEqual(response.status_code, status.HTTP_401_UNAUTHORIZED)

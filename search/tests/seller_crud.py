@@ -8,16 +8,16 @@ from search.models import Seller
 class SellerTests(APITestCase):
     @classmethod
     def setUpTestData(cls):
-        # Create a user for authentication
+        # Create a user1 for authentication
         cls.user = User.objects.create_user(username='testuser', password='testpassword')
         # Create a seller instance for testing update and delete
-        cls.seller = Seller.objects.create(full_name="John Doe", email="john@example.com",
-                                           matriculation_number="12345678")
+        cls.seller = Seller.objects.create(fullName="John Doe", email="john@example.com",
+                                           matriculationNumber="12345678")
 
     def test_create_seller_success(self):
         self.url = reverse('seller-list')
         self.client.force_authenticate(user=self.user)
-        data = {'full_name': 'Jane Doe', 'email': 'jane@example.com', 'matriculation_number': '87654321'}
+        data = {'fullName': 'Jane Doe', 'email': 'jane@example.com', 'matriculationNumber': '87654321'}
         response = self.client.post(self.url, data)
         self.assertEqual(response.status_code, status.HTTP_201_CREATED)
         self.assertEqual(Seller.objects.count(), 2)  # Assuming one seller was already created in setUpTestData
@@ -34,7 +34,7 @@ class SellerTests(APITestCase):
         self.url = reverse('seller-detail', kwargs={'pk': self.seller.pk})
         response = self.client.get(self.url)
         self.assertEqual(response.status_code, status.HTTP_200_OK)
-        self.assertEqual(response.data['full_name'], 'John Doe')
+        self.assertEqual(response.data['fullName'], 'John Doe')
 
     def test_retrieve_seller_failure(self):
         self.client.force_authenticate(user=self.user)
@@ -45,11 +45,11 @@ class SellerTests(APITestCase):
     def test_update_seller_success(self):
         self.client.force_authenticate(user=self.user)
         self.url = reverse('seller-detail', kwargs={'pk': self.seller.pk})
-        data = {'full_name': 'John Updated', 'email': 'johnupdated@example.com', 'matriculation_number': '12345678'}
+        data = {'fullName': 'John Updated', 'email': 'johnupdated@example.com', 'matriculationNumber': '12345678'}
         response = self.client.put(self.url, data)
         self.assertEqual(response.status_code, status.HTTP_200_OK)
         self.seller.refresh_from_db()
-        self.assertEqual(self.seller.full_name, 'John Updated')
+        self.assertEqual(self.seller.fullName, 'John Updated')
 
     def test_update_seller_failure(self):
         self.client.force_authenticate(user=self.user)

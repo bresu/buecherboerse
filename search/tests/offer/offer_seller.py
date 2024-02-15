@@ -57,12 +57,26 @@ class OfferSellerFilterTests(APITestCase):
         self.assertEqual(response.data[0]['seller']['email'], self.seller1.email)
 
     def test_filter_by_non_existent_seller(self):
+        # todo: fix error: probably has to do with resolving of sellers
         base_url = reverse('offer-list')
         query_params = {
             'seller': '9999'}  # Ensure the seller ID is sent as a string if your filtering logic expects that
         url = f"{base_url}?{urlencode(query_params)}"
         response = self.client.get(url)
+        print(response.status_code)
         print(response.data)  # Debugging: Print response data to see error messages
         self.assertEqual(response.status_code, status.HTTP_200_OK,
                          msg=f"Response data: {response.data}")  # Added message for debugging
         self.assertEqual(len(response.data), 0)
+
+    def test_filter_by_seller_exact(self):
+        # Ensure the seller exists
+        self.assertTrue(Seller.objects.filter(id=self.seller1.id).exists(), "Seller does not exist")
+
+        base_url = reverse('offer-list')
+        query_params = {'seller': self.seller1.id}
+        url = f"{base_url}?{urlencode(query_params)}"
+        response = self.client.get(url)
+        # Debug: Print the entire response for more context
+        print(response.data)
+        self.assertEqual(response.status_code, status.HTTP_200_OK, f"Response data: {response.data}")

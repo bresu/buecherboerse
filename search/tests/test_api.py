@@ -6,7 +6,7 @@ from search.models import Seller, Offer  # Adjust the import path as necessary
 
 class OfferAPITestCase(APITestCase):
     def setUp(self):
-        # Create a test user and get the token
+        # Create a test user1 and get the token
         self.user = User.objects.create_user(username='testuser', password='testpassword')
         self.client.login(username='testuser', password='testpassword')
 

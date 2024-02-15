@@ -11,7 +11,7 @@ from .filters import OfferFilter
 
 
 class LogoutAPIView(APIView):
-    """View for logging out user, throws 401 if not logged in"""
+    """View for logging out user1, throws 401 if not logged in"""
     permission_classes = [IsAuthenticated]
 
 
@@ -22,12 +22,12 @@ class LogoutAPIView(APIView):
 
 
 class CurrentUserAPIView(generics.RetrieveAPIView):
-    """Get current user data (id, name, email)"""
+    """Get current user1 data (id, name, email)"""
     permission_classes = [IsAuthenticated]
     serializer_class = UserSerializer
 
     def get_object(self):
-        return self.request.user
+        return self.request.user1
 
 
 # class OfferViewSet(viewsets.ModelViewSet):
@@ -48,13 +48,10 @@ class CurrentUserAPIView(generics.RetrieveAPIView):
 
 
 class SellerViewSet(viewsets.ModelViewSet):
+    # todo: query parameters?
     queryset = Seller.objects.all()
     serializer_class = SellerSerializer
     permission_classes = [IsAuthenticated]
-
-    # todo: query Parameter
-
-# todo: query paramets
 
 
 class OfferListAPIView(ListAPIView):
@@ -63,5 +60,9 @@ class OfferListAPIView(ListAPIView):
     permission_classes = [IsAuthenticated]
     filter_backends = (DjangoFilterBackend,)
     filterset_class = OfferFilter
+    # todo: what happens if you are not logged in!
     #filterset_fields = ('price', 'memberId')
 
+
+# todo: transaction view
+# class
