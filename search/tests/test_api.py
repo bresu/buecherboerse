@@ -4,6 +4,7 @@ from rest_framework.test import APITestCase
 from rest_framework import status
 from search.models import Seller, Offer  # Adjust the import path as necessary
 
+
 class OfferAPITestCase(APITestCase):
     def setUp(self):
         # Create a test user1 and get the token
@@ -11,8 +12,8 @@ class OfferAPITestCase(APITestCase):
         self.client.login(username='testuser', password='testpassword')
 
         # Create a test seller and offer
-        self.seller = Seller.objects.create(full_name="Test Seller", matriculation_number="12345678", email="seller@example.com")
-        self.offer = Offer.objects.create(isbn="1234567890123", wish_price=100.00, member_id=self.user, is_active=True)
+        self.seller = Seller.objects.create(fullName="Test Seller", matriculationNumber="12345678", email="seller@example.com")
+        self.offer = Offer.objects.create(isbn="1234567890123", price=100.00, member=self.user, active=True)
 
     def test_get_offer_detail_authenticated(self):
         # Obtain a JWT token

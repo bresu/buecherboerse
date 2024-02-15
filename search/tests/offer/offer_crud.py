@@ -21,9 +21,9 @@ class OfferAPITests(APITestCase):
         cls.token = get_tokens_for_user(cls.user)
         cls.offer_data = {
             'isbn': '1234567890123',
-            'wish_price': 100.00,
-            'member_id': cls.user,
-            'is_active': True
+            'price': 100.00,
+            'member': cls.user,
+            'active': True
         }
         cls.offer = Offer.objects.create(**cls.offer_data)
 
@@ -31,9 +31,9 @@ class OfferAPITests(APITestCase):
         self.client.credentials(HTTP_AUTHORIZATION='Bearer ' + self.token)
         response = self.client.post(reverse('offer-list'), {
             'isbn': '9876543210987',
-            'wish_price': 150.00,
-            'member_id': self.user.id,
-            'is_active': True
+            'price': 150.00,
+            'member': self.user.id,
+            'active': True
         })
         self.assertEqual(response.status_code, status.HTTP_201_CREATED)
         self.assertEqual(Offer.objects.count(), 2)  # Assuming one offer was already created in setUpTestData
@@ -58,7 +58,7 @@ class OfferAPITests(APITestCase):
     def test_update_offer(self):
         self.client.credentials(HTTP_AUTHORIZATION='Bearer ' + self.token)
         response = self.client.patch(reverse('offer-detail', kwargs={'pk': self.offer.pk}), {
-            'wish_price': 120.00,
+            'price': 120.00,
         })
         self.assertEqual(response.status_code, status.HTTP_200_OK)
         self.offer.refresh_from_db()

@@ -12,7 +12,7 @@ class Seller(models.Model):
     email = models.EmailField(verbose_name="E-Mail", unique=True)
 
     def __str__(self):
-        return f"{self.full_name} - {self.matriculation_number}"
+        return f"{self.fullName} - {self.matriculationNumber}"
 
 
 class Offer(models.Model):
