@@ -15,6 +15,7 @@ class OfferSellerFilterTests(APITestCase):
 
 
         # Create seller instances for associating with offers
+
         cls.seller1 = Seller.objects.create(fullName="John Doe", email="john@example.com",
                                             matriculationNumber="12345678")
         cls.seller2 = Seller.objects.create(fullName="Jane Doe", email="jane@example.com",
@@ -44,14 +45,14 @@ class OfferSellerFilterTests(APITestCase):
 
     def test_filter_offers_by_member_positive(self):
         base_url = reverse('offer-list')
-        query_params = {'member': self.user1.id}  # Filter by the first user's ID
+        query_params = {'member': self.user1}  # Filter by the first user's ID
         url = f"{base_url}?{urlencode(query_params)}"
         response = self.client.get(url)
         self.assertEqual(response.status_code, status.HTTP_200_OK)
         # Expecting only offers associated with user1
         self.assertEqual(len(response.data), 1)
         # Verify that the returned offer(s) are indeed for the specified member
-        self.assertEqual(response.data[0]['member'], self.user1.id)
+        self.assertEqual(response.data[0]['member'], self.user1)
         print(response.data)
 
     def test_filter_offers_by_non_existent_member(self):

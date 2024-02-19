@@ -19,6 +19,7 @@ class SellerTests(APITestCase):
         self.client.force_authenticate(user=self.user)
         data = {'fullName': 'Jane Doe', 'email': 'jane@example.com', 'matriculationNumber': '87654321'}
         response = self.client.post(self.url, data)
+        print(self.url)
         self.assertEqual(response.status_code, status.HTTP_201_CREATED)
         self.assertEqual(Seller.objects.count(), 2)  # Assuming one seller was already created in setUpTestData
 

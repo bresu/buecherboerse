@@ -27,30 +27,34 @@ class CurrentUserAPIView(generics.RetrieveAPIView):
     serializer_class = UserSerializer
 
     def get_object(self):
-        return self.request.user1
+        return self.request.user
 
 
 # class OfferViewSet(viewsets.ModelViewSet):
-#     queryset = Offer.objects.all()
-#     serializer_class = OfferSerializer
-#     permission_classes = [IsAuthenticated]
-#     filter_backends = [DjangoFilterBackend]
+#      queryset = Offer.objects.all()
+#      serializer_class = OfferSerializer
+#      permission_classes = [IsAuthenticated]
+#      filter_backends = [DjangoFilterBackend]
 #
-#     filterset_class = OfferFilter
-#     def get_queryset(self):
-#         queryset = super().get_queryset()
-#         print(queryset.query)  # This will print the actual SQL query being executed
-#         return queryset
-#     def perform_destroy(self, instance):
-#         # Implement soft delete by overriding the perform_destroy method
-#         instance.is_active = False
-#         instance.save()
-
+#      filterset_class = OfferFilter
+#      def get_queryset(self):
+#          queryset = super().get_queryset()
+#          print(queryset.query)  # This will print the actual SQL query being executed
+#          return queryset
+#      def perform_destroy(self, instance):
+#          # Implement soft delete by overriding the perform_destroy method#         instance.is_active = False
+# #         instance.save()
 
 class SellerViewSet(viewsets.ModelViewSet):
     # todo: query parameters?
     queryset = Seller.objects.all()
     serializer_class = SellerSerializer
+    permission_classes = [IsAuthenticated]
+
+
+class OfferViewSet(viewsets.ModelViewSet):
+    queryset = Offer.objects.all()
+    serializer_class = OfferSerializer
     permission_classes = [IsAuthenticated]
 
 

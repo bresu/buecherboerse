@@ -5,7 +5,7 @@ from django.contrib.auth.models import User
 from rest_framework.test import APITestCase
 from rest_framework import status
 from rest_framework_simplejwt.tokens import RefreshToken
-from search.models import Offer
+from search.models import Offer, Seller
 
 
 def get_tokens_for_user(user):
@@ -18,12 +18,15 @@ class OfferAPITests(APITestCase):
     def setUpTestData(cls):
         # Set up data for the whole TestCase
         cls.user = User.objects.create_user(username='testuser', password='testpassword')
+        cls.seller1 = Seller.objects.create(fullName="John Doe", email="john@example.com",
+                                            matriculationNumber="12345678")
         cls.token = get_tokens_for_user(cls.user)
         cls.offer_data = {
             'isbn': '1234567890123',
             'price': 100.00,
             'member': cls.user,
-            'active': True
+            'active': True,
+            'seller': cls.seller1
         }
         cls.offer = Offer.objects.create(**cls.offer_data)
 
@@ -32,8 +35,9 @@ class OfferAPITests(APITestCase):
         response = self.client.post(reverse('offer-list'), {
             'isbn': '9876543210987',
             'price': 150.00,
-            'member': self.user.id,
-            'active': True
+            'member': self.user,
+            'active': True,
+            'seller': self.seller1
         })
         self.assertEqual(response.status_code, status.HTTP_201_CREATED)
         self.assertEqual(Offer.objects.count(), 2)  # Assuming one offer was already created in setUpTestData
@@ -48,7 +52,7 @@ class OfferAPITests(APITestCase):
     def test_retrieve_inactive_offer(self):
         self.client.credentials(HTTP_AUTHORIZATION='Bearer ' + self.token)
         # Soft delete the offer
-        self.offer.is_active = False
+        self.offer.active = False
         self.offer.save()
         # Attempt to retrieve the now inactive offer
         response = self.client.get(reverse('offer-detail', kwargs={'pk': self.offer.pk}))
@@ -57,18 +61,18 @@ class OfferAPITests(APITestCase):
 
     def test_update_offer(self):
         self.client.credentials(HTTP_AUTHORIZATION='Bearer ' + self.token)
-        response = self.client.patch(reverse('offer-detail', kwargs={'pk': self.offer.pk}), {
+        response = self.client.patch(reverse('offer-list', kwargs={'pk': self.offer.pk}), {
             'price': 120.00,
         })
         self.assertEqual(response.status_code, status.HTTP_200_OK)
         self.offer.refresh_from_db()
-        self.assertEqual(self.offer.wish_price, 120.00)
+        self.assertEqual(self.offer.price, 120.00)
         print("OUTPUT: " + str(response.data))
 
     def test_soft_delete_offer(self):
         self.client.credentials(HTTP_AUTHORIZATION='Bearer ' + self.token)
-        response = self.client.delete(reverse('offer-detail', kwargs={'pk': self.offer.pk}))
+        response = self.client.delete(reverse('offer-list', kwargs={'pk': self.offer.pk}))
         self.assertEqual(response.status_code, status.HTTP_204_NO_CONTENT)
         self.offer.refresh_from_db()
-        self.assertFalse(self.offer.is_active)
-        print("OUTPUT: " + str(self.offer.is_active))
+        self.assertFalse(self.offer.active)
+        print("OUTPUT: " + str(self.offer.active))

@@ -55,6 +55,7 @@ class AuthTestCase(APITestCase):
         self.client.force_authenticate(user=self.user)  # Simulate being logged in
         url = reverse('auth_user')
         response = self.client.get(url)
+        print(response.data)
         self.assertEqual(response.status_code, status.HTTP_200_OK)
         self.assertEqual(response.data['username'], 'testuser')
 
