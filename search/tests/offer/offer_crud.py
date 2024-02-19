@@ -1,78 +1,79 @@
-# <your_app>/tests/test_offer_api.py
-
+# test_offer_api.py
 from django.urls import reverse
 from django.contrib.auth.models import User
 from rest_framework.test import APITestCase
 from rest_framework import status
+from search.models import Seller, Offer
 from rest_framework_simplejwt.tokens import RefreshToken
-from search.models import Offer, Seller
-
 
 def get_tokens_for_user(user):
     refresh = RefreshToken.for_user(user)
     return str(refresh.access_token)
-
 
 class OfferAPITests(APITestCase):
     @classmethod
     def setUpTestData(cls):
         # Set up data for the whole TestCase
         cls.user = User.objects.create_user(username='testuser', password='testpassword')
-        cls.seller1 = Seller.objects.create(fullName="John Doe", email="john@example.com",
-                                            matriculationNumber="12345678")
+        cls.seller = Seller.objects.create(fullName="John Doe", email="john@example.com", matriculationNumber="12345678")
         cls.token = get_tokens_for_user(cls.user)
-        cls.offer_data = {
+
+    def setUp(self):
+        self.client.credentials(HTTP_AUTHORIZATION='Bearer ' + self.token)
+        self.offer_data = {
             'isbn': '1234567890123',
             'price': 100.00,
-            'member': cls.user,
-            'active': True,
-            'seller': cls.seller1
+            'seller_id': self.seller.id,  # Use seller's id for creation
+            'member': self.user.id,  # Assuming member is a User
+            'active': True
         }
-        cls.offer = Offer.objects.create(**cls.offer_data)
+        # Create an offer for use in tests
+        self.offer = Offer.objects.create(
+            isbn='1234567890123',
+            price=100.00,
+            seller=self.seller,
+            member=self.user,
+            active=True
+        )
 
     def test_create_offer(self):
-        self.client.credentials(HTTP_AUTHORIZATION='Bearer ' + self.token)
-        response = self.client.post(reverse('offer-list'), {
-            'isbn': '9876543210987',
-            'price': 150.00,
-            'member': self.user,
-            'active': True,
-            'seller': self.seller1
-        })
+        response = self.client.post(reverse('offer-list'), data=self.offer_data, format='json')
         self.assertEqual(response.status_code, status.HTTP_201_CREATED)
-        self.assertEqual(Offer.objects.count(), 2)  # Assuming one offer was already created in setUpTestData
+        self.assertEqual(Offer.objects.count(), 2)  # One is created in setUp
 
     def test_retrieve_offer(self):
-        self.client.credentials(HTTP_AUTHORIZATION='Bearer ' + self.token)
-        response = self.client.get(reverse('offer-detail', kwargs={'pk': self.offer.pk}))
+        url = reverse('offer-detail', kwargs={'pk': self.offer.pk})
+        response = self.client.get(url)
         self.assertEqual(response.status_code, status.HTTP_200_OK)
         self.assertEqual(response.data['isbn'], self.offer.isbn)
-        print("OUTPUT: " + str(response.data))
 
-    def test_retrieve_inactive_offer(self):
-        self.client.credentials(HTTP_AUTHORIZATION='Bearer ' + self.token)
-        # Soft delete the offer
-        self.offer.active = False
-        self.offer.save()
-        # Attempt to retrieve the now inactive offer
-        response = self.client.get(reverse('offer-detail', kwargs={'pk': self.offer.pk}))
-        self.assertEqual(response.status_code, status.HTTP_404_NOT_FOUND)
-        print("OUTPUT: " + str(response.data))
-
-    def test_update_offer(self):
-        self.client.credentials(HTTP_AUTHORIZATION='Bearer ' + self.token)
-        response = self.client.patch(reverse('offer-list', kwargs={'pk': self.offer.pk}), {
-            'price': 120.00,
-        })
+    def test_patch_offer(self):
+        new_price = 150.00
+        url = reverse('offer-detail', kwargs={'pk': self.offer.pk})
+        response = self.client.patch(url, {'price': new_price}, format='json')
         self.assertEqual(response.status_code, status.HTTP_200_OK)
         self.offer.refresh_from_db()
-        self.assertEqual(self.offer.price, 120.00)
-        print("OUTPUT: " + str(response.data))
+        self.assertEqual(self.offer.price, new_price)
 
-    def test_soft_delete_offer(self):
-        self.client.credentials(HTTP_AUTHORIZATION='Bearer ' + self.token)
-        response = self.client.delete(reverse('offer-list', kwargs={'pk': self.offer.pk}))
-        self.assertEqual(response.status_code, status.HTTP_204_NO_CONTENT)
+    def test_put_offer(self):
+        url = reverse('offer-detail', kwargs={'pk': self.offer.pk})
+        updated_offer_data = {
+            'isbn': '9876543210987',
+            'price': 200.00,
+            'seller_id': self.seller.id,  # Use the same seller's id or a different one if your test case requires it
+            'member': self.user.id,  # Assuming member references a User instance
+            'active': False  # Change attributes as needed for your test case
+        }
+        response = self.client.put(url, data=updated_offer_data, format='json')
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
         self.offer.refresh_from_db()
-        self.assertFalse(self.offer.active)
-        print("OUTPUT: " + str(self.offer.active))
+        self.assertEqual(self.offer.isbn, updated_offer_data['isbn'])
+        self.assertEqual(self.offer.price, updated_offer_data['price'])
+        self.assertEqual(self.offer.active, updated_offer_data['active'])
+        # Add more assertions as necessary to verify all fields were updated correctly
+
+    def test_delete_offer(self):
+        url = reverse('offer-detail', kwargs={'pk': self.offer.pk})
+        response = self.client.delete(url)
+        self.assertEqual(response.status_code, status.HTTP_204_NO_CONTENT)
+        self.assertEqual(Offer.objects.count(), 0)

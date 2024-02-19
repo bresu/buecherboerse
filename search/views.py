@@ -2,7 +2,8 @@ from rest_framework import viewsets, status, generics
 from rest_framework.permissions import IsAuthenticated
 from rest_framework.response import Response
 from rest_framework.views import APIView
-from rest_framework.generics import ListAPIView
+#from rest_framework.generics import ListAPIView
+from rest_framework.generics import ListCreateAPIView, RetrieveUpdateDestroyAPIView
 from .models import Offer, Seller, Transaction
 from .serializers import OfferSerializer, SellerSerializer
 from search.serializers import UserSerializer
@@ -30,21 +31,6 @@ class CurrentUserAPIView(generics.RetrieveAPIView):
         return self.request.user
 
 
-# class OfferViewSet(viewsets.ModelViewSet):
-#      queryset = Offer.objects.all()
-#      serializer_class = OfferSerializer
-#      permission_classes = [IsAuthenticated]
-#      filter_backends = [DjangoFilterBackend]
-#
-#      filterset_class = OfferFilter
-#      def get_queryset(self):
-#          queryset = super().get_queryset()
-#          print(queryset.query)  # This will print the actual SQL query being executed
-#          return queryset
-#      def perform_destroy(self, instance):
-#          # Implement soft delete by overriding the perform_destroy method#         instance.is_active = False
-# #         instance.save()
-
 class SellerViewSet(viewsets.ModelViewSet):
     # todo: query parameters?
     queryset = Seller.objects.all()
@@ -52,13 +38,7 @@ class SellerViewSet(viewsets.ModelViewSet):
     permission_classes = [IsAuthenticated]
 
 
-class OfferViewSet(viewsets.ModelViewSet):
-    queryset = Offer.objects.all()
-    serializer_class = OfferSerializer
-    permission_classes = [IsAuthenticated]
-
-
-class OfferListAPIView(ListAPIView):
+class OfferListAPIView(ListCreateAPIView):
     queryset = Offer.objects.all()
     serializer_class = OfferSerializer
     permission_classes = [IsAuthenticated]
@@ -68,5 +48,8 @@ class OfferListAPIView(ListAPIView):
     #filterset_fields = ('price', 'memberId')
 
 
-# todo: transaction view
-# class
+class OfferDetailView(RetrieveUpdateDestroyAPIView):
+    queryset = Offer.objects.all()
+    serializer_class = OfferSerializer
+    permission_classes = [IsAuthenticated]
+
