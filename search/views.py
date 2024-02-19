@@ -16,7 +16,6 @@ class LogoutAPIView(APIView):
     """View for logging out user1, throws 401 if not logged in"""
     permission_classes = [IsAuthenticated]
 
-
     def post(self, request):
         # Perform any logout actions here (e.g., logging)
         # Since JWT is stateless, actual logout is handled by the frontend discarding the token
@@ -32,13 +31,18 @@ class CurrentUserAPIView(generics.RetrieveAPIView):
         return self.request.user
 
 
-class SellerViewSet(viewsets.ModelViewSet):
-    # todo: query parameters?
+class SellerListApiView(ListCreateAPIView):
     queryset = Seller.objects.all()
     serializer_class = SellerSerializer
     permission_classes = [IsAuthenticated]
     filter_backends = (DjangoFilterBackend,)
     filterset_class = SellerFilter
+
+
+class SellerDetailView(RetrieveUpdateDestroyAPIView):
+    queryset = Seller.objects.all()
+    serializer_class = SellerSerializer
+    permission_classes = [IsAuthenticated]
 
 
 class OfferListAPIView(ListCreateAPIView):
@@ -87,6 +91,13 @@ class OfferDetailView(RetrieveUpdateDestroyAPIView):
 
         return queryset
 
+    def perform_update(self, serializer):
+        # Ignore 'active' field changes for PATCH/PUT requests
+        if 'active' in serializer.validated_data:
+            serializer.validated_data.pop('active')
+        serializer.save()
+        # todo: test if this works
+
     def destroy(self, request, *args, **kwargs):
         instance = self.get_object()
         instance.active = False
@@ -95,5 +106,4 @@ class OfferDetailView(RetrieveUpdateDestroyAPIView):
         return Response(status=status.HTTP_204_NO_CONTENT)
 
     # todo: patch/put darf nicht active ändern
-    # todo: id soll in reposne bei beiden views sein
 

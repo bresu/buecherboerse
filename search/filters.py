@@ -3,6 +3,7 @@ from django_filters import DateTimeFilter, CharFilter, BooleanFilter, NumberFilt
 from django.contrib.auth.models import AnonymousUser
 from search.models import Offer, Seller
 
+
 class OfferFilter(filters.FilterSet):
     location = CharFilter(field_name="location", method='filter_for_authenticated_users')
     active = BooleanFilter(field_name="active", method="filter_for_authenticated_users")
@@ -36,10 +37,12 @@ class OfferFilter(filters.FilterSet):
 
 
 class SellerFilter(filters.FilterSet):
+    fullName = filters.CharFilter(field_name="fullName", lookup_expr='icontains')
+    matriculationNumber = filters.CharFilter(field_name="matriculationNumber", lookup_expr='icontains')
+    email = filters.CharFilter(field_name="email", lookup_expr='icontains')
+
     class Meta:
         model = Seller
-        fields = {
-            'fullName': ['icontains'],
-            'matriculationNumber': ["icontains"],
-            'email': ['icontains']
-        }
+        fields = ['fullName', 'matriculationNumber', 'email']
+
+
