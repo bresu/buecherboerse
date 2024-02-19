@@ -58,18 +58,20 @@ class OfferAPITests(APITestCase):
     def test_put_offer(self):
         url = reverse('offer-detail', kwargs={'pk': self.offer.pk})
         updated_offer_data = {
-            'isbn': '9876543210987',
+            'isbn': '9816543210987',
             'price': 200.00,
             'seller_id': self.seller.id,  # Use the same seller's id or a different one if your test case requires it
             'member': self.user.id,  # Assuming member references a User instance
             'active': False  # Change attributes as needed for your test case
         }
         response = self.client.put(url, data=updated_offer_data, format='json')
+        print(response.data)
         self.assertEqual(response.status_code, status.HTTP_200_OK)
         self.offer.refresh_from_db()
         self.assertEqual(self.offer.isbn, updated_offer_data['isbn'])
         self.assertEqual(self.offer.price, updated_offer_data['price'])
         self.assertEqual(self.offer.active, updated_offer_data['active'])
+
         # Add more assertions as necessary to verify all fields were updated correctly
 
     def test_delete_offer(self):
