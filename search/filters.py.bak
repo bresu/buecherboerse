@@ -1,0 +1,52 @@
+from django_filters import rest_framework as filters
+from search.models import Offer
+from django.contrib.auth.models import AnonymousUser
+
+
+class OfferFilter(filters.FilterSet):
+    seller = filters.NumberFilter(method='filter_seller_member_location')
+    member = filters.NumberFilter(method='filter_seller_member_location')
+    location = filters.CharFilter(method='filter_seller_member_location')
+    createdAt = filters.DateTimeFilter(method='filter_dates')
+    modified = filters.DateTimeFilter(method='filter_dates')
+
+    def filter_seller_member_location(self, queryset, name, value):
+        """
+        Custom filter method to filter offers by seller, member, and location,
+        only allowing filtering for authenticated users.
+        """
+        request = self.request
+        if isinstance(request.user, AnonymousUser):
+            # Don't allow filtering by these fields for unauthenticated users
+            return queryset.all()
+        try:
+            if name in ['seller', 'member']:
+                value_int = int(value)  # Convert value to integer for 'seller' and 'member'
+                return queryset.filter(**{name: value_int})
+            else:
+                # No conversion needed for 'location', it's already a string
+                return queryset.filter(**{name: value})
+        except (ValueError, TypeError):
+            return queryset
+
+    def filter_dates(self, queryset, name, value):
+        """
+        Custom filter method to filter offers by createdAt and modified dates,
+        only allowing filtering for authenticated users.
+        """
+        request = self.request
+        if isinstance(request.user, AnonymousUser):
+            # Don't allow filtering by these date fields for unauthenticated users
+            return queryset.all()
+        # For datetime fields, directly apply the filter without conversion
+        return queryset.filter(**{name: value})
+
+    class Meta:
+        model = Offer
+        fields = {
+            'isbn': ['exact'],
+            'price': ['exact', 'gt', 'lt', 'gte', 'lte'],
+            'marked': ['exact'],
+            'active': ['exact'],
+            # Removed 'seller', 'member', 'location', 'createdAt', 'modified' from direct filtering
+        }

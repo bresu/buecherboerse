@@ -45,4 +45,4 @@ class SellerFilter(filters.FilterSet):
         model = Seller
         fields = ['fullName', 'matriculationNumber', 'email']
 
-
+    # todo: global search :-(

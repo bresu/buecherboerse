@@ -2,7 +2,6 @@ from django.db import models
 from django.conf import settings
 from django.core.validators import MinLengthValidator
 from django.core.exceptions import ValidationError
-from django.utils.timezone import now
 
 
 class Seller(models.Model):
@@ -16,6 +15,7 @@ class Seller(models.Model):
 
 
 class Offer(models.Model):
+    # srachable: isbn, price, seller_fields, member_fields,
     isbn = models.CharField(max_length=13, verbose_name="ISBN")
     price = models.DecimalField(max_digits=5, decimal_places=2, verbose_name="Wunschpreis")
     seller = models.ForeignKey(Seller, on_delete=models.PROTECT, verbose_name="Verkäufer:in")
@@ -27,7 +27,7 @@ class Offer(models.Model):
     location = models.CharField(max_length=5, null=True, blank=True, verbose_name="Lagerort")
 
     def __str__(self):
-        return f"{self.pk}"
+        return f"{self.pk} - {self.isbn}"
 
 
 class Transaction(models.Model):
