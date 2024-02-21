@@ -8,6 +8,7 @@ from .models import Offer, Seller, Transaction
 from .serializers import OfferSerializer, SellerSerializer
 from search.serializers import UserSerializer
 from django_filters.rest_framework import DjangoFilterBackend
+from rest_framework.filters import OrderingFilter
 from .filters import OfferFilter, SellerFilter
 
 
@@ -34,21 +35,26 @@ class SellerListApiView(ListCreateAPIView):
     queryset = Seller.objects.all()
     serializer_class = SellerSerializer
     permission_classes = [IsAuthenticated]
-    filter_backends = (DjangoFilterBackend,)
+    filter_backends = (DjangoFilterBackend, OrderingFilter,)
     filterset_class = SellerFilter
+    ordering_fields = ['fullName', 'matriculationNumber', 'email', 'id']
 
 
 class SellerDetailView(RetrieveUpdateDestroyAPIView):
     queryset = Seller.objects.all()
     serializer_class = SellerSerializer
     permission_classes = [IsAuthenticated]
+    # todo doku ohne login!
 
 
 class OfferListAPIView(ListCreateAPIView):
     queryset = Offer.objects.all()
     serializer_class = OfferSerializer
-    filter_backends = (DjangoFilterBackend,)
+    filter_backends = (DjangoFilterBackend, OrderingFilter)
     filterset_class = OfferFilter
+    ordering_fields = ['price', 'createdAt', 'modified', 'book__edition', 'location', 'marked', 'book__exam__name']
+    ordering = ['-book__edition', 'price', 'createdAt']    # höchste edition, dann kleinster preis
+    # todo: in der doku vermerken was default sortierung ist!
 
     def get_queryset(self):
         """
@@ -109,7 +115,5 @@ class OfferDetailView(RetrieveUpdateDestroyAPIView):
         instance.save()
 
         return Response(status=status.HTTP_204_NO_CONTENT)
-
-    # todo: patch/put darf nicht active ändern
 
 # todo: Book View mit API support

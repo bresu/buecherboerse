@@ -16,6 +16,8 @@ router = SimpleRouter(trailing_slash=False)
 urlpatterns = [
     path('v1/offers', OfferListAPIView.as_view(), name="offer-list"),
     path('v1/offers/<int:pk>', OfferDetailView.as_view(), name="offer-detail"),
+    # todo: endpoint for bulk-deletion of offers "/sell + POST"
+
     path('v1/sellers', SellerListApiView.as_view(), name="seller-list"),
     path('v1/sellers/<int:pk>', SellerDetailView.as_view(), name="seller-detail"),
     path('v1/auth/login', TokenObtainPairView.as_view(), name='token_obtain_pair'),
