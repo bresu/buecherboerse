@@ -2,7 +2,6 @@ from rest_framework import viewsets, status, generics
 from rest_framework.permissions import IsAuthenticated
 from rest_framework.response import Response
 from rest_framework.views import APIView
-#from rest_framework.generics import ListAPIView
 from rest_framework.permissions import IsAuthenticatedOrReadOnly
 from rest_framework.generics import ListCreateAPIView, RetrieveUpdateDestroyAPIView
 from .models import Offer, Seller, Transaction
@@ -48,7 +47,6 @@ class SellerDetailView(RetrieveUpdateDestroyAPIView):
 class OfferListAPIView(ListCreateAPIView):
     queryset = Offer.objects.all()
     serializer_class = OfferSerializer
-    #permission_classes = [IsAuthenticatedOrReadOnly]
     filter_backends = (DjangoFilterBackend,)
     filterset_class = OfferFilter
 
@@ -73,6 +71,13 @@ class OfferListAPIView(ListCreateAPIView):
             return Response({"detail": "Anmeldedaten fehlen."},
                             status=status.HTTP_401_UNAUTHORIZED)
 
+        serializer = self.get_serializer(data=request.data)
+        if serializer.is_valid():
+            serializer.save()
+            return Response(serializer.data, status=status.HTTP_201_CREATED)
+        else:
+            return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+
 
 class OfferDetailView(RetrieveUpdateDestroyAPIView):
     queryset = Offer.objects.all()
@@ -91,12 +96,12 @@ class OfferDetailView(RetrieveUpdateDestroyAPIView):
 
         return queryset
 
-    def perform_update(self, serializer):
+    def update(self, request, *args, **kwargs):
         # Ignore 'active' field changes for PATCH/PUT requests
-        if 'active' in serializer.validated_data:
-            serializer.validated_data.pop('active')
-        serializer.save()
-        # todo: test if this works
+        if 'active' in request.data:
+            return Response({"detail": "Modifying the active field is not allowed."}, status=status.HTTP_403_FORBIDDEN)
+
+        return super().update(request, *args, **kwargs)
 
     def destroy(self, request, *args, **kwargs):
         instance = self.get_object()
@@ -107,3 +112,4 @@ class OfferDetailView(RetrieveUpdateDestroyAPIView):
 
     # todo: patch/put darf nicht active ändern
 
+# todo: Book View mit API support

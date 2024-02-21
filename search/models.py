@@ -4,6 +4,16 @@ from django.core.validators import MinLengthValidator
 from django.core.exceptions import ValidationError
 
 
+exam_char_length = 20
+
+
+class Exam(models.Model):
+    name = models.CharField(max_length=exam_char_length, unique=True, verbose_name="Name")
+
+    def __str__(self):
+        return self.name
+
+
 class Seller(models.Model):
     fullName = models.CharField(max_length=255, verbose_name="Vor- und Nachname")
     matriculationNumber = models.CharField(max_length=8, validators=[MinLengthValidator(8)],
@@ -14,9 +24,23 @@ class Seller(models.Model):
         return f"{self.fullName} - {self.matriculationNumber}"
 
 
+class Book(models.Model):
+    # todo get post, mit filter auf einzelen fields und all
+    isbn = models.CharField(max_length=13, verbose_name="ISBN", primary_key=True)
+    title = models.CharField(max_length=100, verbose_name="Titel")
+    authors = models.CharField(max_length=100, verbose_name="Autoren")
+    maxPrice = models.DecimalField(max_digits=5, decimal_places=2, verbose_name="Maximaler Preis")
+    edition = models.IntegerField(verbose_name="Auflage")
+    publisher = models.CharField(max_length=30, verbose_name="Verlag")
+    exam = models.ForeignKey(Exam, on_delete=models.PROTECT, verbose_name="Prüfung") # todo: makes protect sense?
+
+    def __str__(self):
+        return f"{self.title} - {self.edition}"
+
+
 class Offer(models.Model):
-    # srachable: isbn, price, seller_fields, member_fields,
-    isbn = models.CharField(max_length=13, verbose_name="ISBN")
+    # searchable: isbn, price, seller_fields, member_fields,
+    book = models.ForeignKey(Book, on_delete=models.PROTECT, verbose_name="ISBN")
     price = models.DecimalField(max_digits=5, decimal_places=2, verbose_name="Wunschpreis")
     seller = models.ForeignKey(Seller, on_delete=models.PROTECT, verbose_name="Verkäufer:in")
     member = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.PROTECT, verbose_name="FV-Mitglied")
@@ -27,7 +51,7 @@ class Offer(models.Model):
     location = models.CharField(max_length=5, null=True, blank=True, verbose_name="Lagerort")
 
     def __str__(self):
-        return f"{self.pk} - {self.isbn}"
+        return f"{self.pk} - {self.book_id}: {self.book_id}"
 
 
 class Transaction(models.Model):
@@ -50,3 +74,4 @@ class Transaction(models.Model):
             out += f"EIN: {self.value} ID:{self.offer}"
 
         return out
+

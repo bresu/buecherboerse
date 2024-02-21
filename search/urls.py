@@ -12,7 +12,7 @@ router = SimpleRouter(trailing_slash=False)
 #router.register(r'offers', OfferViewSet, basename="offer")
 #router.register(r'sellers', SellerViewSet, basename="seller") # change like offers
 # todo: add transaction adding via api
-
+#
 urlpatterns = [
     path('v1/offers', OfferListAPIView.as_view(), name="offer-list"),
     path('v1/offers/<int:pk>', OfferDetailView.as_view(), name="offer-detail"),
