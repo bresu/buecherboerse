@@ -26,7 +26,7 @@ def create_sellers(n):
     for _ in range(n):
         fullName = fake.name()
         matriculationNumber = str(fake.unique.random_int(min=10000000, max=99999999))
-        email = fake.email()
+        email = fake.unique.email()
         Seller.objects.create(fullName=fullName, matriculationNumber=matriculationNumber, email=email)
 
 def create_books(n, exams):
@@ -47,7 +47,8 @@ def create_offers(n, books, sellers):
         seller = random.choice(sellers)
         active = fake.boolean()
         location = fake.postcode()[:4]
-        Offer.objects.create(book=book, price=price, seller=seller, active=active, location=location, member=User.objects.first())
+        marked = fake.boolean()
+        Offer.objects.create(book=book, price=price, seller=seller, marked=marked, active=active, location=location, member=User.objects.first())
 
 def generate_data(books=10, sellers=5, offers=20):
     exams = create_exams(5)  # Create some exams for the books
@@ -59,5 +60,5 @@ def generate_data(books=10, sellers=5, offers=20):
 
 if __name__ == "__main__":
     # Set the number of Books, Offers, and Sellers you want to create
-    generate_data(books=100, sellers=50, offers=200)
+    generate_data(books=50, sellers=1000, offers=2000)
     print("Fake data generation completed.")
