@@ -76,6 +76,10 @@ class CurrentUserAPIView(generics.RetrieveAPIView):
 
 
 class SellerListApiView(ListCreateAPIView):
+    """
+    Wird das hier dann richtig angezigt?
+    Bzw. lässt sich das ganze hier mitel **markdown** machen?
+    """
     queryset = Seller.objects.all()
     serializer_class = SellerSerializer
     permission_classes = [IsAuthenticated]
@@ -93,6 +97,9 @@ class SellerDetailView(RetrieveUpdateDestroyAPIView):
 
 
 class BookDetailView(RetrieveUpdateDestroyAPIView):
+    """
+    Either a book is in the DB at it is returned, or it is not found (has to be either created or is too old)
+    """
     queryset = Book.objects.all()
     serializer_class = BookSerializer
     # todo: crawler wenn buch ned existiert laufen lassen, sonst 404
@@ -124,6 +131,7 @@ class BookListApiView(ListCreateAPIView):
 
 
 class OfferListAPIView(ListCreateAPIView):
+    # todo: exclude note field from public api
     queryset = Offer.objects.all()
     serializer_class = OfferSerializer
     filter_backends = (DjangoFilterBackend, OrderingFilter)
@@ -191,5 +199,3 @@ class OfferDetailView(RetrieveUpdateDestroyAPIView):
         instance.save()
 
         return Response(status=status.HTTP_204_NO_CONTENT)
-
-# todo: Book View mit API support

@@ -19,7 +19,6 @@ class Seller(models.Model):
     matriculationNumber = models.CharField(max_length=8, validators=[MinLengthValidator(8)],
                                            verbose_name="Matrikelnummer", unique=True) # todo solve this shit
     email = models.EmailField(verbose_name="E-Mail", unique=True)
-    # note field
     note = models.TextField(verbose_name="Anmerkung", blank=True, null=True)
 
     def __str__(self):
@@ -33,14 +32,17 @@ class Book(models.Model):
     maxPrice = models.DecimalField(max_digits=5, decimal_places=2, verbose_name="Maximaler Preis")
     edition = models.IntegerField(verbose_name="Auflage")
     publisher = models.CharField(max_length=30, verbose_name="Verlag")
-    exam = models.ForeignKey(Exam, null=True, blank=True, on_delete=models.CASCADE, verbose_name="Prüfung") # done: cascade and nullable
+    exam = models.ForeignKey(Exam, null=True, blank=True, on_delete=models.CASCADE, verbose_name="Prüfung")
 
     def __str__(self):
         return f"{self.title} - {self.edition}"
 
 
 class Offer(models.Model):
-    # searchable: isbn, price, seller_fields, member_fields,
+    """
+    Offer represents the logical link of a seller selling a book. An offer is always created by some member.
+    Offers have a price and are either active or inactive.
+    """
     book = models.ForeignKey(Book, on_delete=models.PROTECT, verbose_name="ISBN")
     price = models.DecimalField(max_digits=5, decimal_places=2, verbose_name="Wunschpreis")
     seller = models.ForeignKey(Seller, on_delete=models.PROTECT, verbose_name="Verkäufer:in")

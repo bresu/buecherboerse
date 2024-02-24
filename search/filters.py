@@ -71,6 +71,7 @@ class OfferFilter(filters.FilterSet):
         model = Offer
         fields = {
             'book__isbn': ['exact'],
+            'book__exam__name': ['icontains'],
             'price': ['exact', 'gt', 'lt', 'gte', 'lte'],
             'marked': ['exact'],
         }

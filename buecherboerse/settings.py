@@ -15,7 +15,6 @@ from pathlib import Path
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
 
-
 # Quick-start development settings - unsuitable for production
 # See https://docs.djangoproject.com/en/4.2/howto/deployment/checklist/
 
@@ -37,6 +36,7 @@ INSTALLED_APPS = [
     'django.contrib.messages',
     'django.contrib.staticfiles',
     'search',
+    'drf_yasg',
     'rest_framework',
     'django_filters',
 ]
@@ -146,4 +146,34 @@ SIMPLE_JWT = {
 }
 
 SESSION_COOKIE_SECURE = True
+
 CSRF_COOKIE_SECURE = True
+
+
+import os
+
+# Set the base directory of your project
+BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+
+# Define the path to the templates directory
+# settings.py
+
+# Define the path to the templates directory
+TEMPLATES_DIR = os.path.join(BASE_DIR, 'templates')
+# DRF-YASG configuration
+SWAGGER_SETTINGS = {
+    'SECURITY_DEFINITIONS': {'api_key': {
+            'type': 'apiKey',
+            'in': 'header',
+            'name': 'Authorization'
+        }
+    },
+    #'USE_SESSION_AUTH': True,  # To disable Django session authentication
+    #'PERSIST_AUTH': True,  # To persist authentication credentials across sessions
+    'LOGIN_URL': '/api/v1/auth/login',
+    #'LOGOUT_URL': 'rest_framework:auth_logout',
+    #'DOC_EXPANSION': 'list',
+    #'YASG_JS': 'https://cdnjs.cloudflare.com/ajax/libs/swagger-ui/3.52.1/swagger-ui-bundle.js',
+    #'YASG_CSS': 'https://cdnjs.cloudflare.com/ajax/libs/swagger-ui/3.52.1/swagger-ui.css',
+    #'YASG_TEMPLATE': os.path.join(TEMPLATES_DIR, 'swagger_ui_custom.html'),  # Path to your custom template
+}
