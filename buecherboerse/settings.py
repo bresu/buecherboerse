@@ -59,7 +59,7 @@ REST_FRAMEWORK = {
         'django_filters.rest_framework.DjangoFilterBackend',
     ),
     'DEFAULT_PAGINATION_CLASS': 'rest_framework.pagination.LimitOffsetPagination',
-        'PAGE_SIZE': 100
+        'PAGE_SIZE': 20
 }
 
 
@@ -118,7 +118,7 @@ AUTH_PASSWORD_VALIDATORS = [
 # Internationalization
 # https://docs.djangoproject.com/en/4.2/topics/i18n/
 
-LANGUAGE_CODE = 'de_AT'
+LANGUAGE_CODE = 'de-at'
 
 TIME_ZONE = 'UTC'
 
