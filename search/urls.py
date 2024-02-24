@@ -5,7 +5,7 @@ from .views import (LogoutAPIView, CurrentUserAPIView, OfferListAPIView,OfferDet
 
                     SellerListApiView, SellerDetailView, BookDetailView, BookListApiView)
 from rest_framework_simplejwt.views import (
-    TokenObtainPairView,
+    TokenObtainPairView, # not used anymore
     TokenRefreshView,
 )
 

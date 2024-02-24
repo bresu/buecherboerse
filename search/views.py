@@ -31,7 +31,11 @@ class CustomTokenObtainPairView(TokenObtainPairView):
         access = refresh.access_token
 
         # Set tokens in HttpOnly cookies
-        response = JsonResponse({"detail": "Authentication success"})
+#        response = JsonResponse({"detail": "Authentication success"})
+        # todo: add this
+        # {'access': access, 'refresh' : refresh}
+        response = JsonResponse({'access': str(access), 'refresh': str(refresh)})
+
         response.set_cookie(
             'refresh_token',
             value=str(refresh),
@@ -97,6 +101,7 @@ class BookDetailView(RetrieveUpdateDestroyAPIView):
 
 
 class BookListApiView(ListCreateAPIView):
+    # todo: check if current logged in user is actually the one being sent
     queryset = Book.objects.all()
     serializer_class = BookSerializer
     permission_classes = [IsAuthenticatedOrReadOnly]
