@@ -6,7 +6,7 @@ from django.db.models import Q
 
 
 class OfferFilter(filters.FilterSet):
-    # todo: filter for datetime
+    # todo: filter for datetime fig dich
     search = CharFilter(method='global_search')
     location = CharFilter(field_name="location", method='filter_for_authenticated_users')
     active = BooleanFilter(field_name="active", method="filter_for_authenticated_users")

@@ -14,7 +14,7 @@ urlpatterns = [
     # get, posten, put/ patch
     path('v1/offers', OfferListAPIView.as_view(), name="offer-list"),
     path('v1/offers/<int:pk>', OfferDetailView.as_view(), name="offer-detail"),
-    # todo: endpoint for bulk-deletion of offers "/sell + POST"
+    # todo: endpoint for bulk-deletion of offers "/sell + POST" geht no ned
     # path('v1/offers/sell')
     path('v1/books', BookListApiView.as_view(), name='book-list'),
     path('v1/books/<int:pk>', BookDetailView.as_view(), name='book-detail'),
