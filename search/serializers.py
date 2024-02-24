@@ -23,6 +23,11 @@ class ExamSerializer(serializers.ModelSerializer):
 
 class BookSerializer(serializers.ModelSerializer):
     exam = ExamSerializer(read_only=True)
+    exam_id = serializers.PrimaryKeyRelatedField(
+        write_only=True,
+        queryset=Exam.objects.all(),
+        source='exam'
+    )
 
     class Meta:
         model = Book

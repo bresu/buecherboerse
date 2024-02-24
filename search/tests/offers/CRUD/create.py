@@ -31,7 +31,8 @@ class OfferAPITests(APITestCase):
             'member_id': self.user.id,  # Assuming member is a User
             'book_id': self.book.isbn,
             'active': True,
-            'marked': True
+            'marked': True,
+            'note': "i am a note"
         }
         response = self.client.post(reverse('offer-list'), data=offer_data, format='json')
         self.assertEqual(response.status_code, status.HTTP_201_CREATED)

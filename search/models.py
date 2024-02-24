@@ -19,20 +19,21 @@ class Seller(models.Model):
     matriculationNumber = models.CharField(max_length=8, validators=[MinLengthValidator(8)],
                                            verbose_name="Matrikelnummer", unique=True)
     email = models.EmailField(verbose_name="E-Mail", unique=True)
+    # note field
+    note = models.TextField(verbose_name="Anmerkung", blank=True, null=True)
 
     def __str__(self):
         return f"{self.fullName} - {self.matriculationNumber}"
 
 
 class Book(models.Model):
-    # todo get post, mit filter auf einzelen fields und all
     isbn = models.CharField(max_length=13, verbose_name="ISBN", primary_key=True)
     title = models.CharField(max_length=100, verbose_name="Titel")
     authors = models.CharField(max_length=100, verbose_name="Autoren")
     maxPrice = models.DecimalField(max_digits=5, decimal_places=2, verbose_name="Maximaler Preis")
     edition = models.IntegerField(verbose_name="Auflage")
     publisher = models.CharField(max_length=30, verbose_name="Verlag")
-    exam = models.ForeignKey(Exam, on_delete=models.PROTECT, verbose_name="Prüfung") # todo: makes protect sense?
+    exam = models.ForeignKey(Exam, null=True, blank=True, on_delete=models.CASCADE, verbose_name="Prüfung") # done: cascade and nullable
 
     def __str__(self):
         return f"{self.title} - {self.edition}"
@@ -49,6 +50,7 @@ class Offer(models.Model):
     modified = models.DateTimeField(auto_now=True, verbose_name="Zuletzt geändert am")
     marked = models.BooleanField(default=True, verbose_name="Markiert")
     location = models.CharField(max_length=5, null=True, blank=True, verbose_name="Lagerort")
+    note = models.TextField(verbose_name="Anmerkung", blank=True, null=True)
 
     def __str__(self):
         return f"{self.pk} - {self.book_id}: {self.book_id}"

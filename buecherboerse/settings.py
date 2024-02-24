@@ -143,3 +143,6 @@ SIMPLE_JWT = {
     'ACCESS_TOKEN_LIFETIME': timedelta(minutes=100), # todo: change to 30sec
     'REFRESH_TOKEN_LIFETIME': timedelta(days=1),
 }
+
+SESSION_COOKIE_SECURE = True
+CSRF_COOKIE_SECURE = True

@@ -34,7 +34,7 @@ class OfferFilter(filters.FilterSet):
             'book__authors': "__icontains",
             'book__publisher': "__icontains",
             'seller__fullName': "__icontains",
-            'seller__matriculationNumber': '__exact',
+            'seller__matriculationNumber': '__icontains',
             'seller__email': "__icontains",
             'member__username': "__icontains",
             'member__email': "__icontains",
@@ -80,12 +80,12 @@ class SellerFilter(filters.FilterSet):
     fullName = filters.CharFilter(field_name="fullName", lookup_expr='icontains')
     matriculationNumber = filters.CharFilter(field_name="matriculationNumber", lookup_expr='icontains')
     email = filters.CharFilter(field_name="email", lookup_expr='icontains')
-    search = CharFilter(method='global_search')
+    search = filters.CharFilter(method='global_search')
 
     def global_search(self, queryset, name, value):
         search_fields_dict = {
             'fullName': "__icontains",
-            'matriculationNumber': '__icontains', # @matteo wanted this
+            'matriculationNumber': '__icontains',  # @matteo wanted this
             'email': "__icontains",
 
         }
@@ -98,10 +98,36 @@ class SellerFilter(filters.FilterSet):
             return queryset.filter(query).distinct()
         return queryset
 
-
     class Meta:
         model = Seller
         fields = ['fullName', 'matriculationNumber', 'email']
 
+
+class BookFilter(filters.FilterSet):
+    exam__name = filters.CharFilter(field_name="exam__name", lookup_expr="icontains")
+    maxPrice = filters.NumberFilter(field_name='maxPrice', lookup_expr='exact')
+    maxPrice__gt = filters.NumberFilter(field_name="maxPrice", lookup_expr="gt")
+    maxPrice__gte = filters.NumberFilter(field_name="maxPrice", lookup_expr="gte")
+    maxPrice__lt = filters.NumberFilter(field_name="maxPrice", lookup_expr="lt")
+    maxPrice__lte = filters.NumberFilter(field_name="maxPrice", lookup_expr="lte")
+    authors = filters.CharFilter(field_name='authors',lookup_expr="icontains")
+    publisher = filters.CharFilter(field_name='publisher', lookup_expr="icontains")
+    search = filters.CharFilter(method='global_search')
+
+    def global_search(self, queryset, name, value):
+        search_fields_dict = {
+            'isbn': "__icontains",
+            'exam__name': '__icontains',  # @matteo wanted this
+            'title': "__icontains",
+            'authors': "__icontains"
+
+        }
+        if value:
+            # Define fields to search in
+            query = Q()
+            for field, search_mode in search_fields_dict.items():
+                query |= Q(**{f"{field}{search_mode}": value})
+            return queryset.filter(query).distinct()
+        return queryset
 
 # query highlithing?

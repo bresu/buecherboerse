@@ -66,7 +66,8 @@ class OfferAPITests(APITestCase):
     def test_patch_offer_valid(self):
         patch_data = {
             'marked': not self.offer.marked,
-            'location': 'ABC'
+            'location': 'ABC',
+            'note': "i am a note"
         }
 
         url = reverse('offer-detail', kwargs={'pk': self.offer.pk})
@@ -75,7 +76,7 @@ class OfferAPITests(APITestCase):
         self.assertEqual(response.status_code, status.HTTP_200_OK)
         self.assertNotEquals(response.data['marked'], True)
         self.assertNotEqual(response.data['location'], None)
-
+        self.assertEqual(response.data['note'], 'i am a note')
 
     def test_patch_offer_invalid_active(self):
         patch_data = {
