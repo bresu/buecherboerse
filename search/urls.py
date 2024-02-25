@@ -1,9 +1,10 @@
 from django.urls import path, include
 from rest_framework.routers import SimpleRouter
-from .views import (LogoutAPIView, CurrentUserAPIView, OfferListAPIView,OfferDetailView,
+from .views import (LogoutAPIView, CurrentUserAPIView,
                     CustomTokenObtainPairView,
-
-                    SellerListApiView, SellerDetailView, BookDetailView, BookListApiView)
+                    OfferListAPIView,OfferDetailView,OfferBulkCreationView,
+                    SellerListApiView, SellerDetailView,
+                    BookDetailView, BookListApiView)
 from rest_framework_simplejwt.views import (
     TokenObtainPairView, # not used anymore
     TokenRefreshView,
@@ -33,7 +34,7 @@ urlpatterns = [
     # get, posten, put/ patch
     path('v1/offers', OfferListAPIView.as_view(), name="offer-list"),
     path('v1/offers/<int:pk>', OfferDetailView.as_view(), name="offer-detail"),
-    # todo: endpoint for bulk-deletion of offers "/sell + POST" geht no ned
+    path('v1/offers/bulk',OfferBulkCreationView.as_view(), name="offer-bulk-create"),
     # path('v1/offers/sell')
     path('v1/books', BookListApiView.as_view(), name='book-list'),
     path('v1/books/<int:pk>', BookDetailView.as_view(), name='book-detail'),

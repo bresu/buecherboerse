@@ -33,6 +33,7 @@ class Book(models.Model):
     edition = models.IntegerField(verbose_name="Auflage")
     publisher = models.CharField(max_length=30, verbose_name="Verlag")
     exam = models.ForeignKey(Exam, null=True, blank=True, on_delete=models.CASCADE, verbose_name="Prüfung")
+    # old
 
     def __str__(self):
         return f"{self.title} - {self.edition}"

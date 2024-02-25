@@ -14,6 +14,7 @@ from rest_framework_simplejwt.views import TokenObtainPairView
 from rest_framework_simplejwt.tokens import RefreshToken
 from rest_framework_simplejwt.exceptions import TokenError, InvalidToken
 from django.http import JsonResponse
+from django.db import transaction
 
 
 class CustomTokenObtainPairView(TokenObtainPairView):
@@ -31,7 +32,7 @@ class CustomTokenObtainPairView(TokenObtainPairView):
         access = refresh.access_token
 
         # Set tokens in HttpOnly cookies
-#        response = JsonResponse({"detail": "Authentication success"})
+        #        response = JsonResponse({"detail": "Authentication success"})
         # todo: add this
         # {'access': access, 'refresh' : refresh}
         response = JsonResponse({'access': str(access), 'refresh': str(refresh)})
@@ -104,7 +105,7 @@ class BookDetailView(RetrieveUpdateDestroyAPIView):
     serializer_class = BookSerializer
     # todo: crawler wenn buch ned existiert laufen lassen, sonst 404
     # make readonly?
-    #permission_classes = [Read]
+    # permission_classes = [Read]
 
 
 class BookListApiView(ListCreateAPIView):
@@ -137,7 +138,8 @@ class OfferListAPIView(ListCreateAPIView):
     filter_backends = (DjangoFilterBackend, OrderingFilter)
     filterset_class = OfferFilter
     ordering_fields = ['price', 'createdAt', 'modified', 'book__edition', 'location', 'marked', 'book__exam__name']
-    ordering = ['-book__edition', 'price', 'createdAt']    # höchste edition, dann kleinster preis
+    ordering = ['-book__edition', 'price', 'createdAt']  # höchste edition, dann kleinster preis
+
     # todo: in der doku vermerken was default sortierung ist!
 
     def get_queryset(self):
@@ -199,3 +201,36 @@ class OfferDetailView(RetrieveUpdateDestroyAPIView):
         instance.save()
 
         return Response(status=status.HTTP_204_NO_CONTENT)
+
+
+class OfferBulkCreationView(APIView):
+    """
+    View that handles bulk creation of offers. If creation of one offer fails (due to whatever reason) no offer
+    is created and an error explaining which element lead to the error is returned.
+    """
+    queryset = Offer.objects.all()
+    serializer_class = OfferSerializer
+    permission_classes = [IsAuthenticated]
+
+    def post(self, request, *args, **kwargs):
+        data = request.data
+        if not isinstance(data, list):
+            return Response({"error": "Expected a list of offers"}, status=status.HTTP_400_BAD_REQUEST)
+
+        if isinstance(data, list) and not data:
+            return Response({"error": "Empty list is not allowed"}, status=status.HTTP_400_BAD_REQUEST)
+
+        serializers = [OfferSerializer(data=offer_data) for offer_data in data]
+
+        valid_serializers = []
+        for serializer in serializers:
+            if serializer.is_valid():
+                valid_serializers.append(serializer)
+            else:
+                return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+
+        with transaction.atomic():
+            for serializer in valid_serializers:
+                serializer.save()
+
+        return Response([serializer.data for serializer in valid_serializers], status=status.HTTP_201_CREATED)
