@@ -116,6 +116,7 @@ class OfferSerializer(serializers.ModelSerializer):
         request = self.context.get('request')
 
         if not request or not request.user.is_authenticated:
+             # todo: rewrite this so we have a whitelist system
             non_public_fields = ['seller', 'member', 'active', 'createdAt', 'modified', 'location']
             for field in non_public_fields:
                 ret.pop(field, None)

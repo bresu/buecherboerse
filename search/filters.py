@@ -12,17 +12,8 @@ class OfferFilter(filters.FilterSet):
     active = BooleanFilter(field_name="active", method="filter_for_authenticated_users")
     member = NumberFilter(field_name="member", method="filter_for_authenticated_users")
     seller = NumberFilter(field_name="seller", method="filter_for_authenticated_users")
-    createdAt = DateTimeFilter(field_name='createdAt', lookup_expr='exact', method='filter_for_authenticated_users')
-    createdAt__gt = DateTimeFilter(field_name='createdAt', lookup_expr='gt', method='filter_for_authenticated_users')
-    createdAt__lt = DateTimeFilter(field_name='createdAt', lookup_expr='lt', method='filter_for_authenticated_users')
-    createdAt__gte = DateTimeFilter(field_name='createdAt', lookup_expr='gte', method='filter_for_authenticated_users')
-    createdAt__lte = DateTimeFilter(field_name='createdAt', lookup_expr='lte', method='filter_for_authenticated_users')
-    modified = DateTimeFilter(field_name='modified', lookup_expr='exact', method='filter_for_authenticated_users')
-    modified__gt = DateTimeFilter(field_name='modified', lookup_expr='gt', method='filter_for_authenticated_users')
-    modified__lt = DateTimeFilter(field_name='modified', lookup_expr='lt', method='filter_for_authenticated_users')
-    modified__gte = DateTimeFilter(field_name='modified', lookup_expr='gte', method='filter_for_authenticated_users')
-    modified__lte = DateTimeFilter(field_name='modified', lookup_expr='lte', method='filter_for_authenticated_users')
-
+    created = filters.DateFromToRangeFilter(field_name="createdAt")
+    modified = filters.DateFromToRangeFilter(field_name="modified")
     def global_search(self, queryset, name, value):
         request = self.request
 
@@ -74,6 +65,7 @@ class OfferFilter(filters.FilterSet):
             'book__exam__name': ['icontains'],
             'price': ['exact', 'gt', 'lt', 'gte', 'lte'],
             'marked': ['exact'],
+
         }
 
 
@@ -130,6 +122,7 @@ class BookFilter(filters.FilterSet):
                 query |= Q(**{f"{field}{search_mode}": value})
             return queryset.filter(query).distinct()
         return queryset
+
 
 class ExamFilter(filters.FilterSet):
     search = filters.CharFilter(method='global_search')

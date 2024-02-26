@@ -15,9 +15,15 @@ from rest_framework_simplejwt.tokens import RefreshToken
 from rest_framework_simplejwt.exceptions import TokenError, InvalidToken
 from django.http import JsonResponse
 from django.db import transaction
+from drf_yasg.utils import swagger_auto_schema, APIView
 
 
 class CustomTokenObtainPairView(TokenObtainPairView):
+    """
+    Login endpoint. Send "username" and "password". Receive Http-Only Cookie with Access and refresh token.
+    """
+
+
     def post(self, request, *args, **kwargs):
         serializer = self.get_serializer(data=request.data)
 
@@ -55,6 +61,8 @@ class CustomTokenObtainPairView(TokenObtainPairView):
         )
 
         return response
+
+
 
 
 class LogoutAPIView(APIView):
@@ -132,10 +140,14 @@ class BookListApiView(ListCreateAPIView):
 
 
 class OfferListAPIView(ListCreateAPIView):
+    """
+    Lists offers. Default ordering is by DESC book__edition, ASC price and ASC createdAt.
+    Can be filtered my multitude of fields, including created and modified via *created_before* and *created_after*
+    """
     # todo: exclude note field from public api
     queryset = Offer.objects.all()
     serializer_class = OfferSerializer
-    filter_backends = (DjangoFilterBackend, OrderingFilter)
+    filter_backends = (DjangoFilterBackend, OrderingFilter,)
     filterset_class = OfferFilter
     ordering_fields = ['price', 'createdAt', 'modified', 'book__edition', 'location', 'marked', 'book__exam__name']
     ordering = ['-book__edition', 'price', 'createdAt']  # höchste edition, dann kleinster preis
@@ -158,6 +170,7 @@ class OfferListAPIView(ListCreateAPIView):
 
         return queryset
 
+    @swagger_auto_schema(operation_summary="Create single offer")
     def post(self, request, *args, **kwargs):
         if not request.user.is_authenticated:
             return Response({"detail": "Anmeldedaten fehlen."},
@@ -172,6 +185,11 @@ class OfferListAPIView(ListCreateAPIView):
 
 
 class OfferDetailView(RetrieveUpdateDestroyAPIView):
+    """
+    Retrieve, update or delete single offer by ID. Update of "active" throws an error. Delete sets "active" to **False**
+
+    """
+
     queryset = Offer.objects.all()
     serializer_class = OfferSerializer
     permission_classes = [IsAuthenticatedOrReadOnly]
@@ -188,6 +206,8 @@ class OfferDetailView(RetrieveUpdateDestroyAPIView):
 
         return queryset
 
+    @swagger_auto_schema(operation_summary="Update an offer",
+                         operation_description="If active is tried to be altered, an error is returned")
     def update(self, request, *args, **kwargs):
         # Ignore 'active' field changes for PATCH/PUT requests
         if 'active' in request.data:
@@ -195,6 +215,8 @@ class OfferDetailView(RetrieveUpdateDestroyAPIView):
 
         return super().update(request, *args, **kwargs)
 
+    @swagger_auto_schema(operation_summary="Deactivate an Offer",
+                         operation_description="Marks an offer as inactive instead of deleting it from the database.")
     def destroy(self, request, *args, **kwargs):
         instance = self.get_object()
         instance.active = False
@@ -212,6 +234,7 @@ class OfferBulkCreationView(APIView):
     serializer_class = OfferSerializer
     permission_classes = [IsAuthenticated]
 
+    @swagger_auto_schema(operation_summary="Create multiple offers")
     def post(self, request, *args, **kwargs):
         data = request.data
         if not isinstance(data, list):
