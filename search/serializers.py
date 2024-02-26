@@ -53,8 +53,8 @@ class BookSerializer(serializers.ModelSerializer):
         write_only=True,
         queryset=Exam.objects.all(),
         source='exam',
-        required=False
-
+        required=False,
+        allow_null=True
     )
 
     class Meta:
