@@ -16,8 +16,8 @@ class Exam(models.Model):
 
 class Seller(models.Model):
     fullName = models.CharField(max_length=255, verbose_name="Vor- und Nachname")
-    matriculationNumber = models.CharField(max_length=8, validators=[MinLengthValidator(8)],
-                                           verbose_name="Matrikelnummer", unique=True) # todo solve this shit
+    matriculationNumber = models.CharField(max_length=8, blank=True, null=True, validators=[MinLengthValidator(8)],
+                                           verbose_name="Matrikelnummer")
     email = models.EmailField(verbose_name="E-Mail", unique=True)
     note = models.TextField(verbose_name="Anmerkung", blank=True, null=True)
 
