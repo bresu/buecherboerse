@@ -4,6 +4,7 @@ from .views import (LogoutAPIView, CurrentUserAPIView,
                     CustomTokenObtainPairView,
                     OfferListAPIView,OfferDetailView,OfferBulkCreationView,
                     SellerListApiView, SellerDetailView,
+                    ExamListAPIView,
                     BookDetailView, BookListApiView)
 from rest_framework_simplejwt.views import (
     TokenObtainPairView, # not used anymore
@@ -40,6 +41,8 @@ urlpatterns = [
     path('v1/books/<int:pk>', BookDetailView.as_view(), name='book-detail'),
     path('v1/sellers', SellerListApiView.as_view(), name="seller-list"),
     path('v1/sellers/<int:pk>', SellerDetailView.as_view(), name="seller-detail"),
+
+    path('v1/exams', ExamListAPIView.as_view(), name="exam-list"),
     path('v1/auth/login', CustomTokenObtainPairView.as_view(), name='token_obtain_pair'),
     path('v1/auth/refresh', TokenRefreshView.as_view(), name='token_refresh'),
     path('v1/auth/logout', LogoutAPIView.as_view(), name='auth_logout'),

@@ -3,9 +3,9 @@ from rest_framework.permissions import IsAuthenticated
 from rest_framework.response import Response
 from rest_framework.views import APIView
 from rest_framework.permissions import IsAuthenticatedOrReadOnly
-from rest_framework.generics import ListCreateAPIView, RetrieveUpdateDestroyAPIView
+from rest_framework.generics import ListCreateAPIView, RetrieveUpdateDestroyAPIView, ListAPIView
 from .models import Offer, Seller, Transaction, Book, Exam
-from .serializers import OfferSerializer, SellerSerializer, BookSerializer
+from .serializers import OfferSerializer, SellerSerializer, BookSerializer, ExamSerializer
 from search.serializers import UserSerializer
 from django_filters.rest_framework import DjangoFilterBackend
 from rest_framework.filters import OrderingFilter
@@ -234,3 +234,8 @@ class OfferBulkCreationView(APIView):
                 serializer.save()
 
         return Response([serializer.data for serializer in valid_serializers], status=status.HTTP_201_CREATED)
+
+class ExamListAPIView(ListAPIView):
+    queryset = Exam.objects.all()
+    serializer_class = ExamSerializer
+    permission_classes = [IsAuthenticated]

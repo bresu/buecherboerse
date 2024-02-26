@@ -26,7 +26,9 @@ class BookSerializer(serializers.ModelSerializer):
     exam_id = serializers.PrimaryKeyRelatedField(
         write_only=True,
         queryset=Exam.objects.all(),
-        source='exam'
+        source='exam',
+        required=False
+
     )
 
     class Meta:
