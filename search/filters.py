@@ -131,4 +131,18 @@ class BookFilter(filters.FilterSet):
             return queryset.filter(query).distinct()
         return queryset
 
+class ExamFilter(filters.FilterSet):
+    search = filters.CharFilter(method='global_search')
+    name = filters.CharFilter(field_name="name", lookup_expr="icontains")
+    def global_search(self, queryset, name, value):
+        search_fields_dict = {
+            'name': "__icontains"
+        }
+        if value:
+            # Define fields to search in
+            query = Q()
+            for field, search_mode in search_fields_dict.items():
+                query |= Q(**{f"{field}{search_mode}": value})
+            return queryset.filter(query).distinct()
+        return queryset
 # query highlithing?

@@ -9,7 +9,7 @@ from .serializers import OfferSerializer, SellerSerializer, BookSerializer, Exam
 from search.serializers import UserSerializer
 from django_filters.rest_framework import DjangoFilterBackend
 from rest_framework.filters import OrderingFilter
-from .filters import OfferFilter, SellerFilter, BookFilter
+from .filters import OfferFilter, SellerFilter, BookFilter, ExamFilter
 from rest_framework_simplejwt.views import TokenObtainPairView
 from rest_framework_simplejwt.tokens import RefreshToken
 from rest_framework_simplejwt.exceptions import TokenError, InvalidToken
@@ -235,7 +235,10 @@ class OfferBulkCreationView(APIView):
 
         return Response([serializer.data for serializer in valid_serializers], status=status.HTTP_201_CREATED)
 
+
 class ExamListAPIView(ListAPIView):
     queryset = Exam.objects.all()
     serializer_class = ExamSerializer
     permission_classes = [IsAuthenticated]
+    filter_backends = (DjangoFilterBackend,)  # , OrderingFilter)
+    filterset_class = ExamFilter
