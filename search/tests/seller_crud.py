@@ -48,6 +48,7 @@ class SellerTests(APITestCase):
         self.url = reverse('seller-detail', kwargs={'pk': self.seller.pk})
         data = {'fullName': 'John Updated', 'email': 'johnupdated@example.com', 'matriculationNumber': '12345678'}
         response = self.client.put(self.url, data)
+        print(response.status_code, response.data)
         self.assertEqual(response.status_code, status.HTTP_200_OK)
         self.seller.refresh_from_db()
         self.assertEqual(self.seller.fullName, 'John Updated')

@@ -15,11 +15,23 @@ class SellerSerializer(serializers.ModelSerializer):
         fields = '__all__'
 
     def validate(self, data):
-        # Check if the matriculationNumber is provided and is not unique
+        instance = self.instance  # self.instance is available in serializers during updates
+
+        # Check if the matriculationNumber is provided and is not unique, except for the current instance
         matriculation_number = data.get('matriculationNumber')
-        if matriculation_number and Seller.objects.filter(matriculationNumber=matriculation_number).exists():
-            raise serializers.ValidationError(
-                {"matriculationNumber": "A seller with this matriculation number already exists."})
+        if matriculation_number:
+            existing_with_matriculation = Seller.objects.filter(matriculationNumber=matriculation_number).exclude(
+                pk=instance.pk if instance else None)
+            if existing_with_matriculation.exists():
+                raise serializers.ValidationError(
+                    {"matriculationNumber": "A seller with this matriculation number already exists."})
+
+        # def validate(self, data):
+    #     # Check if the matriculationNumber is provided and is not unique
+    #     matriculation_number = data.get('matriculationNumber')
+    #     if matriculation_number and Seller.objects.filter(matriculationNumber=matriculation_number).exists():
+    #         raise serializers.ValidationError(
+    #             {"matriculationNumber": "A seller with this matriculation number already exists."})
 
         # Check if the email is not unique
         # email = data.get('email')
