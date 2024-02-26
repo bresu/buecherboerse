@@ -2,7 +2,7 @@ from django.db import models
 from django.conf import settings
 from django.core.validators import MinLengthValidator
 from django.core.exceptions import ValidationError
-
+from search.validators import validate_isbn_numeric
 
 exam_char_length = 20
 
@@ -26,7 +26,7 @@ class Seller(models.Model):
 
 
 class Book(models.Model):
-    isbn = models.CharField(max_length=13, verbose_name="ISBN", primary_key=True)
+    isbn = models.CharField(max_length=13, verbose_name="ISBN", primary_key=True,validators=[validate_isbn_numeric])
     title = models.CharField(max_length=100, verbose_name="Titel")
     authors = models.CharField(max_length=100, verbose_name="Autoren")
     maxPrice = models.DecimalField(max_digits=5, decimal_places=2, verbose_name="Maximaler Preis")
