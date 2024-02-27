@@ -2,7 +2,7 @@ from django.urls import path, include
 from rest_framework.routers import SimpleRouter
 from .views import (LogoutAPIView, CurrentUserAPIView,
                     CustomTokenObtainPairView,
-                    OfferListAPIView,OfferDetailView,OfferBulkCreationView,
+                    OfferListAPIView,OfferDetailView, OfferBulkCreationView, OfferBulkDeletion,
                     SellerListApiView, SellerDetailView,
                     ExamListAPIView,
                     BookDetailView, BookListApiView)
@@ -36,7 +36,7 @@ urlpatterns = [
     path('v1/offers', OfferListAPIView.as_view(), name="offer-list"),
     path('v1/offers/<int:pk>', OfferDetailView.as_view(), name="offer-detail"),
     path('v1/offers/bulk',OfferBulkCreationView.as_view(), name="offer-bulk-create"),
-    # path('v1/offers/sell')
+    path('v1/offers/sell', OfferBulkDeletion.as_view(), name="offer-bulk-delete"),
     path('v1/books', BookListApiView.as_view(), name='book-list'),
     path('v1/books/<int:pk>', BookDetailView.as_view(), name='book-detail'),
     path('v1/sellers', SellerListApiView.as_view(), name="seller-list"),

@@ -1,20 +1,20 @@
-from rest_framework import viewsets, status, generics
+from rest_framework import status, generics
 from rest_framework.permissions import IsAuthenticated
 from rest_framework.response import Response
-from rest_framework.views import APIView
 from rest_framework.permissions import IsAuthenticatedOrReadOnly
 from rest_framework.generics import ListCreateAPIView, RetrieveUpdateDestroyAPIView, ListAPIView
-from .models import Offer, Seller, Transaction, Book, Exam
-from .serializers import OfferSerializer, SellerSerializer, BookSerializer, ExamSerializer
-from search.serializers import UserSerializer
-from django_filters.rest_framework import DjangoFilterBackend
 from rest_framework.filters import OrderingFilter
+from .models import Offer, Seller, Transaction, Book, Exam
+from .serializers import OfferSerializer, SellerSerializer, BookSerializer, ExamSerializer, UserSerializer
+# from search.serializers import UserSerializer
+from django_filters.rest_framework import DjangoFilterBackend
 from .filters import OfferFilter, SellerFilter, BookFilter, ExamFilter
 from rest_framework_simplejwt.views import TokenObtainPairView
 from rest_framework_simplejwt.tokens import RefreshToken
 from rest_framework_simplejwt.exceptions import TokenError, InvalidToken
 from django.http import JsonResponse
 from django.db import transaction
+from django.core.exceptions import ObjectDoesNotExist
 from drf_yasg.utils import swagger_auto_schema, APIView
 
 
@@ -22,7 +22,6 @@ class CustomTokenObtainPairView(TokenObtainPairView):
     """
     Login endpoint. Send "username" and "password". Receive Http-Only Cookie with Access and refresh token.
     """
-
 
     def post(self, request, *args, **kwargs):
         serializer = self.get_serializer(data=request.data)
@@ -61,8 +60,6 @@ class CustomTokenObtainPairView(TokenObtainPairView):
         )
 
         return response
-
-
 
 
 class LogoutAPIView(APIView):
@@ -259,6 +256,39 @@ class OfferBulkCreationView(APIView):
         return Response([serializer.data for serializer in valid_serializers], status=status.HTTP_201_CREATED)
 
 
+class OfferBulkDeletion(RetrieveUpdateDestroyAPIView):
+    """
+    (Soft)delete multiple offers by specifying their ids.
+    If an ID can't be resolved, an error message specifying the errornous id is returned and the entire transaction is rollbacked
+    """
+    queryset = Offer.objects.all()
+    permission_classes = [IsAuthenticated]
+    serializer_class = OfferSerializer
+    # error when one offer is already inactive!
+    @swagger_auto_schema(operation_summary="(soft)-delete multiple offers")
+    def post(self, request, *args, **kwargs):
+        data = request.data
+        offer_ids = data.get('offers')
+
+        if not isinstance(offer_ids, list):
+            return Response({"error": "Expected a list of offers"}, status=status.HTTP_400_BAD_REQUEST)
+
+        if isinstance(offer_ids, list) and not offer_ids:
+            return Response({"error": "Empty list is not allowed"}, status=status.HTTP_400_BAD_REQUEST)
+
+        with transaction.atomic():
+            for offer_id in offer_ids:
+                try:
+                    offer = Offer.objects.get(pk=offer_id,
+                                              active=True)  # Ensure offer is active before attempting to delete
+                    offer.active = False
+                    offer.save()
+                except ObjectDoesNotExist:
+                    transaction.set_rollback(True)  # Force a rollback
+                    return Response({"error": f"Offer with ID {offer_id} does not exist or is already inactive"},
+                                    status=status.HTTP_400_BAD_REQUEST)
+
+        return Response({"message": "Offers successfully deleted"}, status=status.HTTP_200_OK)
 class ExamListAPIView(ListAPIView):
     queryset = Exam.objects.all()
     serializer_class = ExamSerializer

@@ -115,12 +115,11 @@ class OfferSerializer(serializers.ModelSerializer):
         ret = super().to_representation(instance)
         request = self.context.get('request')
 
-        if not request or not request.user.is_authenticated:
-             # todo: rewrite this so we have a whitelist system
-            non_public_fields = ['seller', 'member', 'active', 'createdAt', 'modified', 'location']
-            for field in non_public_fields:
-                ret.pop(field, None)
+        whitelist = ['book', 'price', 'marked']
 
+        if request and not request.user.is_authenticated:
+            # Create a new dictionary with only the whitelisted fields
+            ret = {field: ret[field] for field in whitelist if field in ret}
         return ret
 
 # pagination?

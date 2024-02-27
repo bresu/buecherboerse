@@ -42,7 +42,7 @@ class OfferAPITests(APITestCase):
         response = self.client.put(url,data=offer_data)
         self.assertEqual(response.status_code, status.HTTP_200_OK)
         self.assertEqual(int(float(response.data['price'])), 999)
-        self.assertNotEquals(response.data['marked'], self.offer.marked)
+        self.assertNotEqual(response.data['marked'], self.offer.marked)
 
 
     def test_put_offer_invalid(self):
@@ -61,7 +61,7 @@ class OfferAPITests(APITestCase):
         url = reverse('offer-detail', kwargs={'pk': self.offer.pk})
         response = self.client.get(url)
         self.assertEqual(response.status_code, status.HTTP_200_OK)
-        self.assertNotEquals(int(float(response.data['price'])), 999)
+        self.assertNotEqual(int(float(response.data['price'])), 999)
 
     def test_patch_offer_valid(self):
         patch_data = {
@@ -74,7 +74,7 @@ class OfferAPITests(APITestCase):
         response = self.client.patch(url, data=patch_data)
         print(response.status_code)
         self.assertEqual(response.status_code, status.HTTP_200_OK)
-        self.assertNotEquals(response.data['marked'], True)
+        self.assertNotEqual(response.data['marked'], True)
         self.assertNotEqual(response.data['location'], None)
         self.assertEqual(response.data['note'], 'i am a note')
 
