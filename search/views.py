@@ -146,8 +146,8 @@ class OfferListAPIView(ListCreateAPIView):
     serializer_class = OfferSerializer
     filter_backends = (DjangoFilterBackend, OrderingFilter,)
     filterset_class = OfferFilter
-    ordering_fields = ['price', 'createdAt', 'modified', 'book__edition', 'location', 'marked', 'book__exam__name']
-    ordering = ['-book__edition', 'price', 'createdAt']  # höchste edition, dann kleinster preis
+    ordering_fields = ['price',  'book__edition', 'location', 'marked', 'book__exam__name']
+    ordering = ['-book__edition', 'price']  # höchste edition, dann kleinster preis
 
     # todo: in der doku vermerken was default sortierung ist!
 
@@ -186,7 +186,6 @@ class OfferDetailView(RetrieveUpdateDestroyAPIView):
     Retrieve, update or delete single offer by ID. Update of "active" throws an error. Delete sets "active" to **False**
 
     """
-
     queryset = Offer.objects.all()
     serializer_class = OfferSerializer
     permission_classes = [IsAuthenticatedOrReadOnly]
@@ -217,6 +216,7 @@ class OfferDetailView(RetrieveUpdateDestroyAPIView):
     def destroy(self, request, *args, **kwargs):
         instance = self.get_object()
         instance.active = False
+        instance.sold = True
         instance.save()
 
         return Response(status=status.HTTP_204_NO_CONTENT)

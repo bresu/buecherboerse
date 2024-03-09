@@ -1,6 +1,7 @@
 from django.contrib.auth.models import User
 from rest_framework import serializers
 from .models import Seller, Offer, Transaction, Book, Exam
+from simple_history.models import HistoricalRecords
 
 
 class UserSerializer(serializers.ModelSerializer):
@@ -9,10 +10,57 @@ class UserSerializer(serializers.ModelSerializer):
         fields = ('id', 'username', 'email')
 
 
+class HistoricalSellerSerializer(serializers.ModelSerializer):
+    history_user_id = serializers.SerializerMethodField()
+
+    def get_history_user_id(self, obj):
+        # This method assumes you have the HistoryRequestMiddleware set up
+        # and are storing the user responsible for the change.
+        # Adjust according to your setup.
+        return obj.history_user_id if obj.history_user else None
+
+    class Meta:
+        model = Seller.history.model  # This references the historical model for Seller
+        fields = ['id', 'fullName', 'matriculationNumber', 'email', 'note', 'history_date', 'history_type',
+                  'history_user_id']
+        # todo: duplicate this for offers, maybe transactions as well.
+
+
+class HistoricalOfferSerializer(serializers.ModelSerializer):
+    history_user_id = serializers.SerializerMethodField()
+    #seller_id = serializers.PrimaryKeyRelatedField(queryset=Seller.objects.all(), source='seller', read_only=True)
+
+    def get_history_user_id(self, obj):
+        # This method assumes you have the HistoryRequestMiddleware set up
+        # and are storing the user responsible for the change.
+        # Adjust according to your setup.
+        return obj.history_user_id if obj.history_user else None
+
+    class Meta:
+        model = Offer.history.model  # This references the historical model for Seller
+        fields = [
+                  'history_id',
+                  'price',
+                  'note',
+                  'location',
+                  'active',
+                  'sold',
+                  'history_date',
+                  'history_type',
+                  'history_user_id']
+
+
 class SellerSerializer(serializers.ModelSerializer):
+    # todo: remove this from the standard serializer.
+    history = serializers.SerializerMethodField()
+
+    def get_history(self, obj):
+        historical_records = obj.history.all()
+        return HistoricalSellerSerializer(historical_records, many=True).data
+
     class Meta:
         model = Seller
-        fields = '__all__'
+        fields = ['id', 'fullName', 'matriculationNumber', 'email', 'note', 'history']
 
     def validate(self, data):
         instance = self.instance  # self.instance is available in serializers during updates
@@ -26,20 +74,12 @@ class SellerSerializer(serializers.ModelSerializer):
                 raise serializers.ValidationError(
                     {"matriculationNumber": "A seller with this matriculation number already exists."})
 
-        # def validate(self, data):
-    #     # Check if the matriculationNumber is provided and is not unique
-    #     matriculation_number = data.get('matriculationNumber')
-    #     if matriculation_number and Seller.objects.filter(matriculationNumber=matriculation_number).exists():
-    #         raise serializers.ValidationError(
-    #             {"matriculationNumber": "A seller with this matriculation number already exists."})
-
-        # Check if the email is not unique
-        # email = data.get('email')
-        # if Seller.objects.filter(email=email).exists():
-        #     raise serializers.ValidationError({"email": "A seller with this email already exists."})
-
         return data
 
+class SimpleSellerSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Seller
+        fields = ['id', 'fullName', 'matriculationNumber', 'email', 'note']
 
 class ExamSerializer(serializers.ModelSerializer):
     class Meta:
@@ -62,54 +102,31 @@ class BookSerializer(serializers.ModelSerializer):
         fields = '__all__'
 
 
-# class OfferSerializer(serializers.ModelSerializer):
-#     seller = SellerSerializer(read_only=True)
-#     seller_id = serializers.PrimaryKeyRelatedField(queryset=Seller.objects.all(), write_only=True, source='seller')
-#
-#     class Meta:
-#         model = Offer
-#         fields = ['id', 'isbn', 'price', 'marked', 'seller', 'seller_id', 'member', 'active', 'createdAt', 'modified', 'location']
-#         extra_kwargs = {
-#             'seller': {'read_only': True},  # Ensure seller object is read-only
-#         }
-#
-#     def to_representation(self, instance):
-#         # Start with the public data
-#         ret = super().to_representation(instance)
-#         request = self.context.get('request')
-#
-#         # Remove non-public fields for unauthenticated users
-#         if not request or not request.user.is_authenticated:
-#             non_public_fields = ['seller', 'member', 'active', 'createdAt', 'modified', 'location']
-#             for field in non_public_fields:
-#                 ret.pop(field, None)
-#
-#         return ret
+class DynamicFieldsModelSerializer(serializers.ModelSerializer):
+    def __init__(self, *args, **kwargs):
+        fields = kwargs.pop('fields', None)
+        super().__init__(*args, **kwargs)
+        if fields is not None:
+            allowed = set(fields)
+            existing = set(self.fields)
+            for field_name in existing - allowed:
+                self.fields.pop(field_name)
 
 
-class OfferSerializer(serializers.ModelSerializer):
+class OfferSerializer(DynamicFieldsModelSerializer):
+    book_id = serializers.PrimaryKeyRelatedField(queryset=Book.objects.all(), source='book', write_only=True)
+    seller_id = serializers.PrimaryKeyRelatedField(queryset=Seller.objects.all(), source='seller', write_only=True)
     book = BookSerializer(read_only=True)
-    book_id = serializers.PrimaryKeyRelatedField(
-        write_only=True,
-        queryset=Book.objects.all(),
-        source='book'
-    )
-    seller = SellerSerializer(read_only=True)
-    seller_id = serializers.PrimaryKeyRelatedField(
-        write_only=True,
-        queryset=Seller.objects.all(),
-        source='seller'
-    )
-    member = UserSerializer(read_only=True)
-    member_id = serializers.PrimaryKeyRelatedField(
-        write_only=True,
-        queryset=User.objects.all(),
-        source='member'
-    )
+    seller = SimpleSellerSerializer(read_only=True)
+    history = serializers.SerializerMethodField()
+
+    def get_history(self, obj):
+        historical_records = obj.history.all()
+        return HistoricalOfferSerializer(historical_records, many=True).data
 
     class Meta:
         model = Offer
-        fields = '__all__'
+        fields = '__all__'  # You might list specific fields if '__all__' is too broad
 
     def to_representation(self, instance):
         ret = super().to_representation(instance)
@@ -120,6 +137,12 @@ class OfferSerializer(serializers.ModelSerializer):
         if request and not request.user.is_authenticated:
             # Create a new dictionary with only the whitelisted fields
             ret = {field: ret[field] for field in whitelist if field in ret}
-        return ret
-
-# pagination?
+            return ret
+        # Determine if '/details' is in the request path
+        elif 'request' in self.context and '/details' in self.context['request'].path:
+            # Use all fields for '/details' endpoint
+            return super().to_representation(instance)
+        else:
+            # Limit fields for the basic endpoint
+            fields = ['id', 'book', 'price', 'active', 'sold', 'marked', 'note', 'location', 'seller','created',]
+            return {field: super().to_representation(instance).get(field) for field in fields}

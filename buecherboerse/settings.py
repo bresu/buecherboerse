@@ -39,10 +39,14 @@ INSTALLED_APPS = [
     'drf_yasg',
     'rest_framework',
     'django_filters',
+    'simple_history',
+    'debug_toolbar',
 ]
 
 MIDDLEWARE = [
     'search.middleware.JWTAuthenticationMiddleware',
+    'simple_history.middleware.HistoryRequestMiddleware',
+    'debug_toolbar.middleware.DebugToolbarMiddleware',
     'django.middleware.security.SecurityMiddleware',
     'django.contrib.sessions.middleware.SessionMiddleware',
     'django.middleware.common.CommonMiddleware',
@@ -179,3 +183,14 @@ SWAGGER_SETTINGS = {
     #'YASG_CSS': 'https://cdnjs.cloudflare.com/ajax/libs/swagger-ui/3.52.1/swagger-ui.css',
     #'YASG_TEMPLATE': os.path.join(TEMPLATES_DIR, 'swagger_ui_custom.html'),  # Path to your custom template
 }
+
+INTERNAL_IPS = [
+    # ...
+    "127.0.0.1",
+    # ...
+]
+
+DEBUG_TOOLBAR_PANELS = [
+    'debug_toolbar.panels.sql.SQLPanel',  # Enable SQL Panel for query analysis
+    # You can comment out or remove panels here that you don't need
+]

@@ -6,13 +6,14 @@ from django.db.models import Q
 
 
 class OfferFilter(filters.FilterSet):
+    # todo: rewrite this shit.
     search = CharFilter(method='global_search')
     location = CharFilter(field_name="location", method='filter_for_authenticated_users')
     active = BooleanFilter(field_name="active", method="filter_for_authenticated_users")
-    member = NumberFilter(field_name="member", method="filter_for_authenticated_users")
+    #member = NumberFilter(field_name="member", method="filter_for_authenticated_users")
     seller = NumberFilter(field_name="seller", method="filter_for_authenticated_users")
-    created = filters.DateFromToRangeFilter(field_name="createdAt")
-    modified = filters.DateFromToRangeFilter(field_name="modified")
+    #created = filters.DateFromToRangeFilter(field_name="createdAt")
+    #modified = filters.DateFromToRangeFilter(field_name="modified")
     def global_search(self, queryset, name, value):
         request = self.request
 
@@ -26,8 +27,8 @@ class OfferFilter(filters.FilterSet):
             'seller__fullName': "__icontains",
             'seller__matriculationNumber': '__icontains',
             'seller__email': "__icontains",
-            'member__username': "__icontains",
-            'member__email': "__icontains",
+            #'member__username': "__icontains",
+            #'member__email': "__icontains",
             'location': "__exact"
         }
 
@@ -69,6 +70,7 @@ class OfferFilter(filters.FilterSet):
 
 
 class SellerFilter(filters.FilterSet):
+    # todo: make it possible to search for history.
     fullName = filters.CharFilter(field_name="fullName", lookup_expr='icontains')
     matriculationNumber = filters.CharFilter(field_name="matriculationNumber", lookup_expr='icontains')
     email = filters.CharFilter(field_name="email", lookup_expr='icontains')

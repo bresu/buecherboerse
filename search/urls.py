@@ -1,4 +1,5 @@
 from django.urls import path, include
+from django.conf import settings
 from rest_framework.routers import SimpleRouter
 from .views import (LogoutAPIView, CurrentUserAPIView,
                     CustomTokenObtainPairView,
@@ -34,15 +35,21 @@ urlpatterns = [
 
     # get, posten, put/ patch
     path('v1/offers', OfferListAPIView.as_view(), name="offer-list"),
-    path('v1/offers/<int:pk>', OfferDetailView.as_view(), name="offer-detail"),
+    path('v1/offers/<int:pk>', OfferDetailView.as_view(), name="offer-overview"), #todo: refactor testcases
     path('v1/offers/bulk',OfferBulkCreationView.as_view(), name="offer-bulk-create"),
     path('v1/offers/sell', OfferBulkDeletion.as_view(), name="offer-bulk-delete"),
+    path('v1/offers/<int:pk>/details', OfferDetailView.as_view(), name="offer-detail"),
+
     path('v1/books', BookListApiView.as_view(), name='book-list'),
     path('v1/books/<int:pk>', BookDetailView.as_view(), name='book-detail'),
     path('v1/sellers', SellerListApiView.as_view(), name="seller-list"),
     path('v1/sellers/<int:pk>', SellerDetailView.as_view(), name="seller-detail"),
 
+
+    # path('v1/transactions')
+
     path('v1/exams', ExamListAPIView.as_view(), name="exam-list"),
+
     path('v1/auth/login', CustomTokenObtainPairView.as_view(), name='token_obtain_pair'),
     path('v1/auth/refresh', TokenRefreshView.as_view(), name='token_refresh'),
     path('v1/auth/logout', LogoutAPIView.as_view(), name='auth_logout'),
@@ -50,3 +57,9 @@ urlpatterns = [
 
     #path('v1/', include(router.urls)),
 ]
+
+if settings.DEBUG:
+    import debug_toolbar
+    urlpatterns = [
+        path('__debug__/', include(debug_toolbar.urls)),
+    ] + urlpatterns

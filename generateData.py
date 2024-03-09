@@ -53,8 +53,7 @@ def create_offers(n, books, sellers):
         active = fake.boolean()
         location = fake.postcode()[:4]
         marked = fake.boolean()
-        Offer.objects.create(book=book, price=price, seller=seller, marked=marked, active=active, location=location,
-                             member=User.objects.first())
+        Offer.objects.create(book=book, price=price, seller=seller, marked=marked, active=active, location=location)
 
 
 def generate_data(books=10, sellers=5, offers=20):

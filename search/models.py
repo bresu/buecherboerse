@@ -3,10 +3,18 @@ from django.conf import settings
 from django.core.validators import MinLengthValidator
 from django.core.exceptions import ValidationError
 from search.validators import validate_isbn_numeric
+from simple_history.models import HistoricalRecords
 
 exam_char_length = 20
 
-
+def normalize_value(value):
+    """
+    Normalize blank values and strings with only whitespace to None
+    for comparison purposes.
+    """
+    if isinstance(value, str) and value.strip() == "":
+        return None
+    return value
 class Exam(models.Model):
     name = models.CharField(max_length=exam_char_length, unique=True, verbose_name="Name")
 
@@ -20,7 +28,7 @@ class Seller(models.Model):
                                            verbose_name="Matrikelnummer")
     email = models.EmailField(verbose_name="E-Mail", unique=True)
     note = models.TextField(verbose_name="Anmerkung", blank=True, null=True)
-
+    history = HistoricalRecords()
     def __str__(self):
         return f"{self.fullName} - {self.matriculationNumber}"
 
@@ -47,17 +55,46 @@ class Offer(models.Model):
     book = models.ForeignKey(Book, on_delete=models.PROTECT, verbose_name="ISBN")
     price = models.DecimalField(max_digits=5, decimal_places=2, verbose_name="Wunschpreis")
     seller = models.ForeignKey(Seller, on_delete=models.PROTECT, verbose_name="Verkäufer:in")
-    member = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.PROTECT, verbose_name="FV-Mitglied")
     active = models.BooleanField(default=True, verbose_name="Aktiv")
-    createdAt = models.DateTimeField(auto_now_add=True, verbose_name="Erstellt am")
-    modified = models.DateTimeField(auto_now=True, verbose_name="Zuletzt geändert am")
+    sold = models.BooleanField(default=False, verbose_name="Verkauft")
     marked = models.BooleanField(default=True, verbose_name="Markiert")
     location = models.CharField(max_length=5, null=True, blank=True, verbose_name="Lagerort")
     note = models.TextField(verbose_name="Anmerkung", blank=True, null=True)
+    created = models.DateTimeField(auto_now_add=True, verbose_name="Erstellt am")
+    history = HistoricalRecords()
 
     def __str__(self):
         return f"{self.pk} - {self.book_id}: {self.book_id}"
 
+    def save(self, *args, **kwargs):
+        if self.pk is not None:  # Check if this is an existing instance
+            try:
+                last_history = self.history.latest()
+                has_changed = False
+                for field in self._meta.fields:
+                    field_name = field.name
+                    if field_name == 'history':
+                        continue  # Skip the 'history' field
+
+                    current_value = normalize_value(getattr(self, field_name))
+                    last_value = normalize_value(getattr(last_history, field_name))
+
+                    # Compare normalized current value with the last history record
+                    if current_value != last_value:
+                        has_changed = True
+                        break
+
+                if not has_changed:
+                    # Nothing has changed, so don't create a new history record
+                    self.skip_history_when_saving = True
+                    super().save(*args, **kwargs)
+                    del self.skip_history_when_saving
+                    return
+            except AttributeError:
+                # In case the history record does not exist, proceed as normal
+                pass
+
+        super().save(*args, **kwargs)
 
 class Transaction(models.Model):
     value = models.DecimalField(max_digits=4, decimal_places=2, verbose_name="Betrag")
