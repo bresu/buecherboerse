@@ -40,7 +40,7 @@ class CustomTokenObtainPairView(TokenObtainPairView):
         #        response = JsonResponse({"detail": "Authentication success"})
         # todo: add this
         # {'access': access, 'refresh' : refresh}
-        response = JsonResponse({'access': str(access), 'refresh': str(refresh)})
+        response = JsonResponse({'token': str(access), 'refresh': str(refresh)})
 
         response.set_cookie(
             'refresh_token',

@@ -24,7 +24,7 @@ SECRET_KEY = 'django-insecure-x5e(9g4uyg%6fel^fp-xyq!yi+3e_e%+s)y@o3a&okug=5v5mj
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
 
-ALLOWED_HOSTS = ["localhost","127.0.0.1"]
+ALLOWED_HOSTS = ["localhost","127.0.0.1","dev.leandergoetz.eu","blog.leandergoetz.eu","leandergoetz.eu"]
 
 # Application definition
 
@@ -35,6 +35,7 @@ INSTALLED_APPS = [
     'django.contrib.sessions',
     'django.contrib.messages',
     'django.contrib.staticfiles',
+    'corsheaders',
     'search',
     'drf_yasg',
     'rest_framework',
@@ -50,6 +51,7 @@ MIDDLEWARE = [
     'django.contrib.auth.middleware.AuthenticationMiddleware',
     'django.contrib.messages.middleware.MessageMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
+    'corsheaders.middleware.CorsMiddleware',
 ]
 
 REST_FRAMEWORK = {
@@ -117,6 +119,10 @@ AUTH_PASSWORD_VALIDATORS = [
     },
 ]
 
+CORS_ALLOWED_ORIGINS = [
+    "https://nuxt-auth-new.vercel.app",
+]
+
 
 # Internationalization
 # https://docs.djangoproject.com/en/4.2/topics/i18n/
@@ -133,7 +139,10 @@ USE_TZ = True
 # Static files (CSS, JavaScript, Images)
 # https://docs.djangoproject.com/en/4.2/howto/static-files/
 
-STATIC_URL = 'static/'
+
+STATIC_URL = '/static/'
+
+
 
 # Default primary key field type
 # https://docs.djangoproject.com/en/4.2/ref/settings/#default-auto-field
@@ -179,3 +188,7 @@ SWAGGER_SETTINGS = {
     #'YASG_CSS': 'https://cdnjs.cloudflare.com/ajax/libs/swagger-ui/3.52.1/swagger-ui.css',
     #'YASG_TEMPLATE': os.path.join(TEMPLATES_DIR, 'swagger_ui_custom.html'),  # Path to your custom template
 }
+
+CSRF_TRUSTED_ORIGINS = ['https://blog.leandergoetz.eu','https://dev.leandergoetz.eu']
+SESSION_COOKIE_DOMAIN = '.leandergoetz.eu'
+CSRF_COOKIE_DOMAIN = '.leandergoetz.eu'

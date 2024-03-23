@@ -4,12 +4,14 @@ charset-normalizer==3.3.2
 coreapi==2.3.3
 coreschema==0.0.4
 Django==4.2.10
+django-cors-headers==4.3.1
 django-filter==23.5
 django-rest-framework==0.1.0
 djangorestframework==3.14.0
 djangorestframework-simplejwt==5.3.1
 drf-yasg==1.21.7
 Faker==23.2.1
+gunicorn==21.2.0
 idna==3.6
 inflection==0.5.1
 itypes==1.2.0
@@ -21,7 +23,6 @@ python-dateutil==2.8.2
 pytz==2024.1
 PyYAML==6.0.1
 requests==2.31.0
-setuptools==69.1.1
 six==1.16.0
 sqlparse==0.4.4
 typing_extensions==4.9.0
