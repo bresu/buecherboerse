@@ -121,6 +121,7 @@ AUTH_PASSWORD_VALIDATORS = [
 
 CORS_ALLOWED_ORIGINS = [
     "https://nuxt-auth-new.vercel.app",
+    "https://bookmarket-frontend.vercel.app",
 ]
 
 
