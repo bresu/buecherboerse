@@ -163,6 +163,8 @@ CSRF_COOKIE_SECURE = True
 
 import os
 
+STATIC_ROOT = os.path.join(BASE_DIR, 'staticfiles')
+
 # Set the base directory of your project
 BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 
