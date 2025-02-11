@@ -12,6 +12,7 @@ https://docs.djangoproject.com/en/4.2/ref/settings/
 
 import os
 from pathlib import Path
+import re
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
@@ -36,8 +37,6 @@ ALLOWED_HOSTS = [
   "dev.leandergoetz.eu",
   "blog.leandergoetz.eu",
   "leandergoetz.eu",
-  "buecherboerse-r33z.onrender.com",
-  "bookmarket-frontend.vercel.app",
 ] + additional_allowed_hosts
 
 # Application definition
@@ -133,17 +132,30 @@ AUTH_PASSWORD_VALIDATORS = [
     },
 ]
 
-additional_cors_allowed_origins = [
-    origin for origin in os.getenv('ADDITIONAL_CORS_ALLOWED_ORIGINS', '').split(',')
-    if origin
+additional_cors_entries = [
+    origin.strip()
+    for origin in os.getenv('ADDITIONAL_CORS_ALLOWED_ORIGINS', '').split(',')
+    if origin.strip()
 ]
+
+additional_cors_allowed_origins = []
+additional_cors_allowed_origin_regexes = []
+
+for origin in additional_cors_entries:
+    # If the origin contains a wildcard, convert it to a regex.
+    if '*' in origin:
+        # Escape the origin string then replace the escaped '*' with a regex pattern.
+        pattern = re.escape(origin).replace(r'\*', '[a-z0-9-]+')
+        regex = f"^{pattern}$"
+        additional_cors_allowed_origin_regexes.append(regex)
+    else:
+        additional_cors_allowed_origins.append(origin)
 
 CORS_ALLOWED_ORIGINS = [
     "http://localhost:3000",
-    "https://nuxt-auth-new.vercel.app",
-    "https://bookmarket-frontend.vercel.app",
 ] + additional_cors_allowed_origins
 
+CORS_ALLOWED_ORIGIN_REGEXES = additional_cors_allowed_origin_regexes
 
 # Internationalization
 # https://docs.djangoproject.com/en/4.2/topics/i18n/
