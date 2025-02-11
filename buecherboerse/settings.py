@@ -10,6 +10,7 @@ For the full list of settings and their values, see
 https://docs.djangoproject.com/en/4.2/ref/settings/
 """
 
+import os
 from pathlib import Path
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
@@ -24,7 +25,20 @@ SECRET_KEY = 'django-insecure-x5e(9g4uyg%6fel^fp-xyq!yi+3e_e%+s)y@o3a&okug=5v5mj
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
 
-ALLOWED_HOSTS = ["localhost","127.0.0.1","dev.leandergoetz.eu","blog.leandergoetz.eu","leandergoetz.eu","buecherboerse-r33z.onrender.com","bookmarket-frontend.vercel.app"]
+additional_allowed_hosts = [
+    host for host in os.getenv('ADDITIONAL_ALLOWED_HOSTS', '').split(',')
+    if host
+]
+
+ALLOWED_HOSTS = [
+  "localhost",
+  "127.0.0.1",
+  "dev.leandergoetz.eu",
+  "blog.leandergoetz.eu",
+  "leandergoetz.eu",
+  "buecherboerse-r33z.onrender.com",
+  "bookmarket-frontend.vercel.app",
+] + additional_allowed_hosts
 
 # Application definition
 
@@ -119,11 +133,16 @@ AUTH_PASSWORD_VALIDATORS = [
     },
 ]
 
+additional_cors_allowed_origins = [
+    origin for origin in os.getenv('ADDITIONAL_CORS_ALLOWED_ORIGINS', '').split(',')
+    if origin
+]
+
 CORS_ALLOWED_ORIGINS = [
     "http://localhost:3000",
     "https://nuxt-auth-new.vercel.app",
     "https://bookmarket-frontend.vercel.app",
-]
+] + additional_cors_allowed_origins
 
 
 # Internationalization
@@ -161,9 +180,6 @@ SIMPLE_JWT = {
 SESSION_COOKIE_SECURE = True
 
 CSRF_COOKIE_SECURE = True
-
-
-import os
 
 STATIC_ROOT = os.path.join(BASE_DIR, 'staticfiles')
 
