@@ -5,7 +5,7 @@ from .views import (LogoutAPIView, CurrentUserAPIView,
                     OfferListAPIView,OfferDetailView, OfferBulkCreationView, OfferBulkDeletion,
                     SellerListApiView, SellerDetailView,
                     ExamListAPIView,
-                    BookDetailView, BookListApiView)
+                    BookDetailView, BookDetailPriceBinsView, BookListApiView)
 from rest_framework_simplejwt.views import (
     TokenObtainPairView, # not used anymore
     TokenRefreshView,
@@ -39,6 +39,7 @@ urlpatterns = [
     path('v1/offers/sell', OfferBulkDeletion.as_view(), name="offer-bulk-delete"),
     path('v1/books', BookListApiView.as_view(), name='book-list'),
     path('v1/books/<int:pk>', BookDetailView.as_view(), name='book-detail'),
+    path('v1/books/<int:pk>/price-bins', BookDetailPriceBinsView.as_view(), name='book-detail-price-bins'),
     path('v1/sellers', SellerListApiView.as_view(), name="seller-list"),
     path('v1/sellers/<int:pk>', SellerDetailView.as_view(), name="seller-detail"),
 

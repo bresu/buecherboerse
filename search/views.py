@@ -113,6 +113,42 @@ class BookDetailView(RetrieveUpdateDestroyAPIView):
     # permission_classes = [Read]
 
 
+class BookDetailPriceBinsView(APIView):
+    """
+    Get price count for a specific book rounded to the nearest 5€ bin.
+
+    Query Params:
+      - pk: the id of the book in the URL
+
+    Example response:
+    [
+      {"range": "0-5", "count": 2},
+      {"range": "5-10", "count": 1},
+      ...
+    ]
+    """
+    def get(self, request, pk, *args, **kwargs):
+        try:
+            book = Book.objects.get(pk=pk)
+        except Book.DoesNotExist:
+            return Response({"error": "Book not found"}, status=404)
+
+        max_price = float(book.maxPrice)
+        offers = Offer.objects.filter(book=book)
+
+        bins = []
+        # Create bins from 0 to maxPrice in steps of 5
+        lower = 0.0
+        while lower < max_price:
+            upper = lower + 5
+            count = offers.filter(price__gte=lower, price__lt=upper).count()
+            bins.append({"binRange": {"min": int(lower), "max": int(upper)}, "binUpperPrice": int(upper), "count": count})
+            lower = upper
+
+        book_data = BookSerializer(book).data
+        return Response({"book": book_data, "priceBins": bins})
+
+
 class BookListApiView(ListCreateAPIView):
     # todo: check if current logged in user is actually the one being sent
     queryset = Book.objects.all()
