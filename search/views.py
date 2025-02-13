@@ -114,39 +114,73 @@ class BookDetailView(RetrieveUpdateDestroyAPIView):
 
 
 class BookDetailPriceBinsView(APIView):
-    """
-    Get price count for a specific book rounded to the nearest 5€ bin.
+  """
+  Get price counts for a specific book rounded to the nearest 5€ bin.
+  Returns both active and inactive offers count for each bin.
 
-    Query Params:
-      - pk: the id of the book in the URL
+  Query Params:
+    - pk: the id of the book in the URL
 
-    Example response:
-    [
-      {"range": "0-5", "count": 2},
-      {"range": "5-10", "count": 1},
-      ...
-    ]
-    """
-    def get(self, request, pk, *args, **kwargs):
-        try:
-            book = Book.objects.get(pk=pk)
-        except Book.DoesNotExist:
-            return Response({"error": "Book not found"}, status=404)
+  Example response:
+  {
+    "book": { ... },
+    "priceBins": [
+    {
+      "binRange": {"min": 0, "max": 5},
+      "binUpperPrice": 5,
+      "activeCount": 2,
+      "inactiveCount": 1
+    },
+    ...
+    ],
+    "averagePrice": 10.5,
+    "medianPrice": 10.0
+  }
+  """
+  def get(self, request, pk, *args, **kwargs):
+    try:
+      book = Book.objects.get(pk=pk)
+    except Book.DoesNotExist:
+      return Response({"error": "Book not found"}, status=404)
 
-        max_price = float(book.maxPrice)
-        offers = Offer.objects.filter(book=book)
+    max_price = float(book.maxPrice)
+    offers = Offer.objects.filter(book=book)
 
-        bins = []
-        # Create bins from 0 to maxPrice in steps of 5
-        lower = 0.0
-        while lower < max_price:
-            upper = lower + 5
-            count = offers.filter(price__gte=lower, price__lt=upper).count()
-            bins.append({"binRange": {"min": int(lower), "max": int(upper)}, "binUpperPrice": int(upper), "count": count})
-            lower = upper
+    bins = []
+    lower = 0.0
+    while lower < max_price:
+      upper = lower + 5
+      active_count = offers.filter(price__gte=lower, price__lt=upper, active=True).count()
+      inactive_count = offers.filter(price__gte=lower, price__lt=upper, active=False).count()
+      bins.append({
+        "binRange": {"min": int(lower), "max": int(upper)},
+        "count": {"active": active_count, "inactive": inactive_count}
+      })
+      lower = upper
 
-        book_data = BookSerializer(book).data
-        return Response({"book": book_data, "priceBins": bins})
+    book_data = BookSerializer(book).data
+    active_offers = offers.filter(active=True).count()
+    inactive_offers = offers.filter(active=False).count()
+
+    # Calculate average and median prices
+    prices = offers.values_list('price', flat=True)
+    if prices:
+      average_price = sum(prices) / len(prices)
+      median_price = sorted(prices)[len(prices) // 2] if len(prices) % 2 != 0 else \
+        (sorted(prices)[len(prices) // 2 - 1] + sorted(prices)[len(prices) // 2]) / 2
+    else:
+      average_price = 0
+      median_price = 0
+
+    return Response({
+        "book": book_data,
+        "priceBins": bins,
+        "offerStats": {
+            "totalCount": {"active": active_offers, "inactive": inactive_offers},
+            "averagePrice": average_price,
+            "medianPrice": median_price   
+        }
+    })
 
 
 class BookListApiView(ListCreateAPIView):
