@@ -100,16 +100,24 @@ class OfferSerializer(serializers.ModelSerializer):
         queryset=Seller.objects.all(),
         source='seller'
     )
-    member = UserSerializer(read_only=True)
-    member_id = serializers.PrimaryKeyRelatedField(
-        write_only=True,
-        queryset=User.objects.all(),
-        source='member'
-    )
 
     class Meta:
         model = Offer
-        fields = '__all__'
+        fields = ['id', 'book', 'book_id', 'seller', 'seller_id', 'member',
+                 'price', 'marked', 'active', 'createdAt', 'modified', 'location', 'note']
+        extra_kwargs = {
+            'id': {'read_only': True},
+            'member': {'read_only': True},
+            'active': {'read_only': True},
+            'createdAt': {'read_only': True},
+            'modified': {'read_only': True},
+        }
+
+    def create(self, validated_data):
+        request = self.context.get('request')
+        if request and hasattr(request, 'user') and request.user.is_authenticated:
+            validated_data['member'] = request.user
+        return super().create(validated_data)
 
     def to_representation(self, instance):
         ret = super().to_representation(instance)

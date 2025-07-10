@@ -310,7 +310,7 @@ class OfferBulkCreationView(APIView):
         if isinstance(data, list) and not data:
             return Response({"error": "Empty list is not allowed"}, status=status.HTTP_400_BAD_REQUEST)
 
-        serializers = [OfferSerializer(data=offer_data) for offer_data in data]
+        serializers = [OfferSerializer(data=offer_data, context={'request': request}) for offer_data in data]
 
         valid_serializers = []
         for serializer in serializers:
